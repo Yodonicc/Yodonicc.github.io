@@ -1,12 +1,11 @@
+---
 layout: post
 title: "编译WebAssembly版本的FFmpeg（ffmpeg.wasm）：（1）准备"
 date: 2022-04-11 20:20:20 -0000
 categories: 前端 音视频
+---
 
 # **编译WebAssembly版本的FFmpeg（ffmpeg.wasm）：（1）准备**
-
-![img](https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1MTM0NjExMTM4Nw_618614_14G0me1I5fpNj9w6_1649647915?w=640&h=360)
-
 > 作者：[Jerome Wu](https://jeromewus.medium.com/?source=post_page-----ed12bf4c8fac-----------------------------------)
 >
 > 原文链接：[Build FFmpeg WebAssembly version (= ffmpeg.wasm): Part.1 Preparation](https://itnext.io/build-ffmpeg-webassembly-version-ffmpeg-js-part-1-preparation-ed12bf4c8fac)
