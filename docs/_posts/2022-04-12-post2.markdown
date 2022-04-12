@@ -1,8 +1,8 @@
 ---
 layout: post
 title: "编译WebAssembly版本的FFmpeg（ffmpeg.wasm）：（2）使用Emscripten编译"
-date: 2022-04-12 21:02:20 -0000
-categories: 前端 音视频 WebAssembly FFmpeg Emscripten
+date: 2022-04-12 09:02:20 -0000
+categories: 前端 音视频
 ---
 
 # **编译WebAssembly版本的FFmpeg（ffmpeg.wasm）：（2）使用Emscripten编译**
@@ -17,7 +17,7 @@ categories: 前端 音视频 WebAssembly FFmpeg Emscripten
 >
 > 2020/2/11更新：从这个文章的回复来看，目前下面的说明在Mac环境下无法工作。我无法解决这个问题，因为我并不拥有一台。在Mac中最简单的方法是在虚拟机中安装Linux发行版，如Ubuntu。
 
-上一篇文章：[编译WebAssembly版本的FFmpeg（ffmpeg.wasm）：（1）准备](https://km.woa.com/group/52075/articles/show/508118)
+上一篇文章：[编译WebAssembly版本的FFmpeg（ffmpeg.wasm）：（1）准备](https://yodonicc.github.io/%E5%89%8D%E7%AB%AF/%E9%9F%B3%E8%A7%86%E9%A2%91/2022/04/11/post1.html)
 
 > 从这里开始，事情会变得更加复杂和难以理解，如果你不知道发生了什么，你可能需要谷歌背景知识（或者你可以留下回复来问我）。
 >
@@ -35,7 +35,7 @@ categories: 前端 音视频 WebAssembly FFmpeg Emscripten
 
 ### 如何使用Docker设置Emscripten的环境
 
-在[编译WebAssembly版本的FFmpeg（ffmpeg.wasm）：（1）准备](https://km.woa.com/group/52075/articles/show/508118)中，我们已经用GCC构建了原始版本的FFmpeg，现在我们转而使用Emscripten。
+在[编译WebAssembly版本的FFmpeg（ffmpeg.wasm）：（1）准备](https://yodonicc.github.io/%E5%89%8D%E7%AB%AF/%E9%9F%B3%E8%A7%86%E9%A2%91/2022/04/11/post1.html)中，我们已经用GCC构建了原始版本的FFmpeg，现在我们转而使用Emscripten。
 
 我们要使用的Emscripten版本是1.39.18（trzeci/emscripten:1.39.18-upstream），你可以通过[官方教程](https://emscripten.org/docs/getting_started/downloads.html#installation-instructions)安装Emscripten（在本教程中，我们在MacOS中使用[setup-emsdk](https://github.com/mymindstorm/setup-emsdk) Github Actions）或者从docker hub拉取Emscripten镜像。
 
