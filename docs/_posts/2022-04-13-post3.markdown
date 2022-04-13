@@ -1,0 +1,271 @@
+---
+layout: post
+title: "编译WebAssembly版本的FFmpeg（ffmpeg.wasm）：（3）ffmpeg.wasm v0.1 - 将avi转为mp4的编码"
+date: 2022-04-13 09:02:20 -0000
+categories: 前端 音视频
+---
+
+![img](https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1MTM0NjExMTM4Nw_618614_14G0me1I5fpNj9w6_1649647915?w=640&h=360)
+
+> 作者：[Jerome Wu](https://jeromewus.medium.com/?source=post_page-----ed12bf4c8fac-----------------------------------)
+>
+> 原文链接：[Build FFmpeg WebAssembly version (= ffmpeg.wasm): Part.2 Compile with Emscripten](https://itnext.io/build-ffmpeg-webassembly-version-ffmpeg-js-part-3-ffmpeg-js-v0-1-0-transcoding-avi-to-mp4-f729e503a397)
+>
+> 译者：[Yodoxu](https://github.com/Yodonicc)
+>
+> 2020/9更新：调整段落结构，使其更具有可读性。
+
+上一篇文章：[编译WebAssembly版本的FFmpeg（ffmpeg.wasm）：（2）使用Emscripten编译](https://yodonicc.github.io/%E5%89%8D%E7%AB%AF/%E9%9F%B3%E8%A7%86%E9%A2%91/2022/04/12/post2.html)
+
+> 从这里开始，事情会变得更加复杂和难以理解，如果你不知道发生了什么，你可能需要谷歌背景知识（或者你可以留下回复来问我）。
+>
+> 另外，为了使这个教程更实用，我尽量写下我是如何解决每个问题的细节，希望它能帮助你建立你选择的库。
+
+在这一部分中，你将学习：
+
+1. 建立一个具有优化参数的FFmpeg库版本。
+2. 与ffmpeg.wasm进行交互
+3. 管理Emscripten文件系统。
+4. 开发具有转码功能的ffmpeg.wasm v0.1。
+
+
+### 建立一个带有优化参数的FFmpeg库版本。
+
+在第3部分，我们的目标是创建一个基本的ffmpeg.wasm v0.1，将avi转码为mp4。由于我们在第二部分只创建了一个基本版本的FFmpeg，现在我们需要用几个参数进一步优化。
+
+1. `-O3` : 优化代码，减少代码大小（从30MB到15MB）（更多细节请看[这里](https://emscripten.org/docs/optimizing/Optimizing-Code.html)）
+2. `-s PROXY_TO_PTHREAD=1` : 使我们的程序在使用pthread时有响应 (更多细节请看[这里](https://emscripten.org/docs/porting/pthreads.html#additional-flags))
+3. `-o wasm/dist/ffmpeg-core.js` : 将ffmpeg.js更名为ffmpeg-core.js
+   (从这里开始我们称之为ffmpeg-core.js，因为我们将创建一个ffmpeg.js库来包裹ffmpeg-core.js，并提供用户友好的API。)
+4. `-s EXPORTED_FUNCTIONS="[_main, _proxy_main]"` : 将main()和proxy_main()（由PROXY_TO_PTHREAD添加）C函数导出到JavaScript世界。
+5. `-s EXTRA_EXPORTED_RUNTIME_METHODS="[FS, cwrap, setValue, writeAsciiToMemory]" `: 用于操作函数、文件系统和指针的额外函数，查看Interacting with code和preamble.js了解更多细节。
+
+> 关于这些参数的更多细节，你可以查看emscripten github仓库中的src/settings.js。
+
+有了所有的新参数，让我们更新一下我们的`build.sh` 。
+
+``````shell
+#!/bin/bash -x
+
+# verify Emscripten version
+emcc -v
+
+# configure FFMpeg with Emscripten
+CFLAGS="-s USE_PTHREADS -O3"
+LDFLAGS="$CFLAGS -s INITIAL_MEMORY=33554432" # 33554432 bytes = 32 MB
+CONFIG_ARGS=(
+  --target-os=none        # use none to prevent any os specific configurations
+  --arch=x86_32           # use x86_32 to achieve minimal architectural optimization
+  --enable-cross-compile  # enable cross compile
+  --disable-x86asm        # disable x86 asm
+  --disable-inline-asm    # disable inline asm
+  --disable-stripping     # disable stripping
+  --disable-programs      # disable programs build (incl. ffplay, ffprobe & ffmpeg)
+  --disable-doc           # disable doc
+  --extra-cflags="$CFLAGS"
+  --extra-cxxflags="$CFLAGS"
+  --extra-ldflags="$LDFLAGS"
+  --nm="llvm-nm -g"
+  --ar=emar
+  --as=llvm-as
+  --ranlib=llvm-ranlib
+  --cc=emcc
+  --cxx=em++
+  --objcc=emcc
+  --dep-cc=emcc
+)
+emconfigure ./configure "${CONFIG_ARGS[@]}"
+
+# build dependencies
+emmake make -j4
+
+# build ffmpeg.wasm
+mkdir -p wasm/dist
+ARGS=(
+  -I. -I./fftools
+  -Llibavcodec -Llibavdevice -Llibavfilter -Llibavformat -Llibavresample -Llibavutil -Llibpostproc -Llibswscale -Llibswresample
+  -Qunused-arguments
+  -o wasm/dist/ffmpeg.js fftools/ffmpeg_opt.c fftools/ffmpeg_filter.c fftools/ffmpeg_hw.c fftools/cmdutils.c fftools/ffmpeg.c
+  -lavdevice -lavfilter -lavformat -lavcodec -lswresample -lswscale -lavutil -lm
+  -O3                                           # Optimize code with performance first
+  -s USE_SDL=2                                  # use SDL2
+  -s USE_PTHREADS=1                             # enable pthreads support
+  -s PROXY_TO_PTHREAD=1                         # detach main() from browser/UI main thread
+  -s INVOKE_RUN=0                               # not to run the main() in the beginning
+  -s EXPORTED_FUNCTIONS="[_main, _proxy_main]"  # export main and proxy_main funcs
+  -s EXTRA_EXPORTED_RUNTIME_METHODS="[FS, cwrap, setValue, writeAsciiToMemory]"   # export preamble funcs
+  -s INITIAL_MEMORY=33554432                    # 33554432 bytes = 32 MB
+)
+emcc "${ARGS[@]}"
+``````
+
+接下来，让我们尝试与ffmpeg.wasm进行交互。
+
+### 与ffmpeg.wasm互动
+
+为了确保ffmpeg.wasm的工作，让我们尝试在ffmpeg.wasm中实现以下命令。
+
+``````
+$ ffmpeg -hide_banner
+``````
+
+使用`-hide_banner`参数，ffmpeg会隐藏其版本和构建参数的细节，一个典型的输出看起来像这样:
+
+``````
+Hyper fast Audio and Video encoder
+usage: ffmpeg [options] [[infile options] -i infile]... {[outfile options] outfile}...
+Use -h to get full help or, even better, run 'man ffmpeg'
+``````
+
+首先，让我们用以下代码创建一个名为`ffmpeg.js`的文件。
+
+``````
+const Module = require('./dist/ffmpeg-core.js');
+
+Module.onRuntimeInitialized = () => {
+  const ffmpeg = Module.cwrap('proxy_main', 'number', ['number', 'number']);
+};
+``````
+
+执行上面的代码需要在Node.JS中加入额外的参数。
+
+``````
+$ node --experimental-wasm-threads --experimental-wasm-bulk-memory ffmpeg.js
+``````
+
+参数的解释:
+
+1. `onRuntimeInitialized `: 由于WebAssembly需要一些时间来启动，你需要在使用库之前等待这个函数被调用。
+2. `cwrap` : 一个在JavaScript世界里的C函数的包装函数。这个函数的签名是`int main(int argc, char **argv)`，很简单，`int`是映射成数字的，由于`char **argv`在C语言中是一个指针，我们也可以把它映射成数字。
+
+然后我们需要把参数传给它。`$ ffmpeg -hide_banner`的对应参数是`main(2, ["./ffmpeg", "-hide_banner"])`。第一个参数很简单，但我们如何传递一个字符串数组呢？让我们把这个问题分解成两部分。
+
+1. 我们需要将JavaScript中的字符串转换为C语言中的char数组。
+2. 我们需要将JavaScript中的数字数组转换为C语言中的指针数组。
+   
+   
+
+第一部分比较容易，因为我们有一个Emscripten的实用函数，叫做`writeAsciiToMemory()`来帮助我们，下面是一个使用这个函数的例子。
+
+``````
+const str = "FFmpeg.wasm";
+const buf = Module._malloc(str.length + 1); // Allocate a memory with extra byte with value 0 to indicate the end of the string
+Module.writeAsciiToMemory(str, buf);
+``````
+
+第二部分很棘手，我们需要在C语言中用32位整数创建一个指针数组，因为指针是32位整数。我们需要在这里使用`setValue`来创建我们需要的数组。
+
+``````
+const ptrs = [123, 3455];
+const buf = Module._malloc(ptrs.length * Uint32Array.BYTES_PER_ELEMENT);
+ptrs.forEach((p, idx) => {
+  Module.setValue(buf + (Uint32Array.BYTES_PER_ELEMENT * idx), p, 'i32');
+});
+``````
+
+合并上面的所有片段，现在我们可以与ffmpeg.wasm交互，并产生预期的结果。
+
+``````
+const Module = require('./dist/ffmpeg-core');
+
+Module.onRuntimeInitialized = () => {
+  const ffmpeg = Module.cwrap('proxy_main', 'number', ['number', 'number']);
+  const args = ['ffmpeg', '-hide_banner'];
+  const argsPtr = Module._malloc(args.length * Uint32Array.BYTES_PER_ELEMENT);
+  args.forEach((s, idx) => {
+    const buf = Module._malloc(s.length + 1);
+    Module.writeAsciiToMemory(s, buf);
+    Module.setValue(argsPtr + (Uint32Array.BYTES_PER_ELEMENT * idx), buf, 'i32');
+  })
+  ffmpeg(args.length, argsPtr);
+};
+``````
+
+现在，我们可以轻松地与ffmpeg.wasm互动，但我们如何将视频文件传递给它呢？这就是下一节的重点。文件系统。
+
+### 管理Emscripten文件系统
+
+在Emscripten中，有一个虚拟文件系统来支持C语言的标准文件读写，因此我们需要在将参数传递给ffmpeg.wasm之前将视频文件写入这个文件系统中。
+
+> 在文件系统API中找到更多的细节。
+
+大多数时候，你只需要2个FS函数来完成任务。`FS.writeFile()`和`FS.readFile()`。
+
+对于所有写入或读出文件系统的数据，在JavaScript中必须是Uint8Array类型，记得在消耗数据前要做类型转换。
+
+在本教程中，我们使用一个名为`flame.avi`的文件（你可以在[这里](https://github.com/ffmpegwasm/testdata/raw/master/flame.avi)下载），用`fs.readFileSync()`读取它，用`FS.writeFile()`把它写到Emscripten文件系统。
+
+``````
+const fs = require('fs');
+const Module = require('./dist/ffmpeg-core');
+
+Module.onRuntimeInitialized = () => {
+  const data = Uint8Array.from(fs.readFileSync('./flame.avi'));
+  Module.FS.writeFile('flame.avi', data);
+
+  const ffmpeg = Module.cwrap('proxy_main', 'number', ['number', 'number']);
+  const args = ['ffmpeg', '-hide_banner'];
+  const argsPtr = Module._malloc(args.length * Uint32Array.BYTES_PER_ELEMENT);
+  args.forEach((s, idx) => {
+    const buf = Module._malloc(s.length + 1);
+    Module.writeAsciiToMemory(s, buf);
+    Module.setValue(argsPtr + (Uint32Array.BYTES_PER_ELEMENT * idx), buf, 'i32');
+  })
+  ffmpeg(args.length, argsPtr);
+};
+``````
+
+### 开发带有转码功能的ffmpeg.wasm v0.1。
+
+现在我们能够向ffmpeg.wasm传递参数并将文件保存到文件系统中，让我们将所有这些参数组合起来，让我们的ffmpeg.wasm v0.1工作起来。
+
+最后一个我们需要注意的细节是，上面的`ffmpeg()`实际上是异步运行的，所以为了得到输出文件，我们需要使用`setInterval()`来解析日志文件，以知道tranding是否完成。
+
+把所有东西放在一起，现在我们有了第一个ffmpeg.wasm，可以把avi文件转码成mp4文件，没有任何问题。
+
+``````
+const fs = require('fs');
+const Module = require('./dist/ffmpeg-core');
+
+Module.onRuntimeInitialized = () => {
+  const data = Uint8Array.from(fs.readFileSync('./flame.avi'));
+  Module.FS.writeFile('flame.avi', data);
+
+  const ffmpeg = Module.cwrap('proxy_main', 'number', ['number', 'number']);
+  const args = ['ffmpeg', '-hide_banner', '-report', '-i', 'flame.avi', 'flame.mp4'];
+  const argsPtr = Module._malloc(args.length * Uint32Array.BYTES_PER_ELEMENT);
+  args.forEach((s, idx) => {
+    const buf = Module._malloc(s.length + 1);
+    Module.writeAsciiToMemory(s, buf);
+    Module.setValue(argsPtr + (Uint32Array.BYTES_PER_ELEMENT * idx), buf, 'i32');
+  });
+  ffmpeg(args.length, argsPtr);
+
+  /*
+   * The execution of ffmpeg is not synchronized,
+   * so we need to parse the log file to check if completed.
+   */
+  const timer = setInterval(() => {
+    const logFileName = Module.FS.readdir('.').find(name => name.endsWith('.log'));
+    if (typeof logFileName !== 'undefined') {
+      const log = String.fromCharCode.apply(null, Module.FS.readFile(logFileName));
+      if (log.includes("frames successfully decoded")) {
+        clearInterval(timer);
+        const output = Module.FS.readFile('flame.mp4');
+        fs.writeFileSync('flame.mp4', output);
+      }
+    }
+  }, 500);
+
+};
+``````
+
+你可以在这里访问Github库，了解它的工作细节：https://github.com/ffmpegwasm/FFmpeg/tree/n4.3.1-p3
+
+并随时在这里下载构建工件：https://github.com/ffmpegwasm/FFmpeg/releases/tag/n4.3.1-p3
+
+请注意目前它只是一个Node.js版本，但我们将在**编译WebAssembly版本的FFmpeg（ffmpeg.wasm）：（4）ffmpeg.wasm v0.2 增加Libx264库**改进它。
+
+期待在第四篇文章见到你。😃
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
