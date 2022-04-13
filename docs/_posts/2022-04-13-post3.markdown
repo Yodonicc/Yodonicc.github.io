@@ -5,8 +5,6 @@ date: 2022-04-13 09:02:20 -0000
 categories: 前端 音视频
 ---
 
-![img](https://wdoc-76491.picgzc.qpic.cn/MTY4ODg1MTM0NjExMTM4Nw_618614_14G0me1I5fpNj9w6_1649647915?w=640&h=360)
-
 > 作者：[Jerome Wu](https://jeromewus.medium.com/?source=post_page-----ed12bf4c8fac-----------------------------------)
 >
 > 原文链接：[Build FFmpeg WebAssembly version (= ffmpeg.wasm): Part.3 ffmpeg.wasm v0.1 — Transcoding avi to mp4](https://itnext.io/build-ffmpeg-webassembly-version-ffmpeg-js-part-3-ffmpeg-js-v0-1-0-transcoding-avi-to-mp4-f729e503a397)
