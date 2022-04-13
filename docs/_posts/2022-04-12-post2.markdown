@@ -528,3 +528,5 @@ emcc "${ARGS[@]}"
 
 
 注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
+
+我的博客即将同步至腾讯云+社区，邀请大家一同入驻：https://cloud.tencent.com/developer/support-plan?invite_code=38vev0ndgtogc
