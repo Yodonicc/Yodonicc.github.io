@@ -9,7 +9,7 @@ categories: 前端 音视频
 >
 > 原文链接：[Build FFmpeg WebAssembly version (= ffmpeg.wasm): Part.3 ffmpeg.wasm v0.1 — Transcoding avi to mp4](https://itnext.io/build-ffmpeg-webassembly-version-ffmpeg-js-part-3-ffmpeg-js-v0-1-0-transcoding-avi-to-mp4-f729e503a397)
 >
-> 译者：[Yodoxu](https://github.com/Yodonicc)
+> 译者：[Yodonicc](https://github.com/Yodonicc)
 >
 > 2020/9更新：调整段落结构，使其更具有可读性。
 

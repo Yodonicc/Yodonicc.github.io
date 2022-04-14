@@ -11,7 +11,7 @@ categories: 前端 音视频
 >
 > 原文链接：[Build FFmpeg WebAssembly version (= ffmpeg.wasm): Part.2 Compile with Emscripten](https://itnext.io/build-ffmpeg-webassembly-version-ffmpeg-js-part-2-compile-with-emscripten-4c581e8c9a16)
 >
-> 译者：[Yodoxu](https://github.com/Yodonicc)
+> 译者：[Yodonicc](https://github.com/Yodonicc)
 >
 > 2020/9更新：修改教程，使其能在MacOS中运行。
 >
