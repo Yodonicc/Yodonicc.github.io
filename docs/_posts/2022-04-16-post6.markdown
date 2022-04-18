@@ -1,0 +1,100 @@
+---
+layout: post
+title: "编译WebAssembly版本的FFmpeg（ffmpeg.wasm）：（6）深入研究文件系统"
+date: 2022-04-16 09:02:20 -0000
+categories: 前端 音视频
+---
+> 作者：[Jerome Wu](https://jeromewus.medium.com/?source=post_page-----ed12bf4c8fac-----------------------------------)
+>
+> 原文链接：[Build FFmpeg WebAssembly version (= ffmpeg.wasm): Part.6 a Deep Dive into File System (OUTDATED)](https://itnext.io/build-ffmpeg-webassembly-version-ffmpeg-js-part-6-a-deep-dive-into-file-system-56eba10067ca)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> 2020/1/14: 从ffmpeg.wasm v0.6.0开始，我放弃了IDBFS和NODEFS，在postMessage中使用Transferable来解决这个问题。IDBFS的主要问题是IDBFS的大小限制太小（大约200MB），但你仍然可以查看这个文章作为一个例子来使用这两个文件系统。
+
+上一篇文章：[编译WebAssembly版本的FFmpeg（ffmpeg.wasm）：（5）ffmpeg.wasm v0.3 - pre.js与实时音视频流](https://yodonicc.github.io/%E5%89%8D%E7%AB%AF/%E9%9F%B3%E8%A7%86%E9%A2%91/2022/04/15/post5.html)
+
+在这一部分中，你将学习：
+
+1. MEMFS、IDBFS和NODEFS之间的区别
+2. 如何挂载IDBFS和NODEFS
+3. 解决一个实际问题：ffmepg.js文件大小限制
+
+### MEMFS、IDBFS和NODEFS之间的区别
+
+默认情况下，当你使用Emscripten转译任何带有文件系统操作的C/C++库时，Emscripten使用一个名为MEMFS的模拟文件系统，以确保代码在浏览器和node.js环境下工作。
+
+使用MEMFS很方便快捷，但它也有一些缺点：
+
+1. 由于Emscripten最多只能使用2GB的内存，MEMFS使得内存容易耗尽
+2. 在你的主进程和Emscripten之间会有数据 "穿越 "的行为（见下方 "解决一个现实世界（工程）的问题：ffmepg.js文件大小的限制"）。
+
+为了解决这些问题，一种方法是使用IDBFS和NODEFS来"扮演"你的应用程序的真实文件系统。
+
+IDBFS，在浏览器（和 Web Worker）环境中使用，是将 IndexedDB 作为文件系统来存储你的文件
+
+> 由于 IndexedDB 有一些同步问题，你需要在写入文件后使用 FS.syncfs()
+
+NODEFS，在 Node.js 环境中使用，是在 Node.js 中使用 fs API 来模拟一个文件系统。
+
+> 更多细节：https://emscripten.org/docs/api_reference/Filesystem-API.html
+
+### 如何挂载IDBFS和NODEFS
+
+要挂载IDBFS和NODEFS，你需要使用第5部分中介绍的`--pre-js`。 这次我们需要覆盖一个叫做`preRun`的函数（详情见[这里](https://emscripten.org/docs/api_reference/module.html#Module.preRun)）。
+
+下面是一个使用示例
+
+``````javascript
+var logger = function(){}
+
+Module['setLogger'] = function(_logger) { logger = _logger; };
+Module['print'] = function(message) { logger(message, 'stdout'); };
+Module['printErr'] = function(message) { logger(message, 'stderr'); };
+Module['preRun'] = [
+  function() {
+    FS.mkdir('/data');
+    /* Node.js Environment */
+    if (typeof process === 'object' && typeof require === 'function') {
+      try {
+        require('fs').mkdirSync('./data');
+      } catch(e) {}
+      FS.mount(NODEFS, { root: '.' }, '/data');
+    /* Web Worker Environment */
+    } else if (typeof importScripts === 'function') {
+      FS.mount(IDBFS, {}, '/data');
+    }
+  },
+];
+``````
+
+取决于你的应用程序，使用其他函数如`preInit`应该是可以的，但这里我们使用`preRun`来完成任务。
+
+### 解决一个现实世界（工程）的问题：ffmepg.js文件大小限制
+
+有一天，有一个[问题](https://github.com/ffmpegwasm/ffmpeg.wasm/issues/8)报告说ffmpeg.wasm不能处理大文件。为了解决这个问题，我们首先重新审视我们的设计。
+
+![插图1](https://ask.qcloudimg.com/developer-images/article/8345537/sm7s0acwfj.png)
+
+当媒体文件不是那么大的时候，看起来没有问题，但是当媒体文件大到100MB的时候，通过postMessage()或send()传递这么大的媒体文件看起来就不合理了，从而导致ffmpeg.wasm崩溃。
+
+![插图2](https://ask.qcloudimg.com/developer-images/article/8345537/99xdim3scw.png)
+
+这里的瓶颈是由Web Worker/Child Process作为一个传递组件来发送和接收媒体文件造成的，为了解决这个问题，我们需要使用一个可以被Worker和Web Worker/Child Process访问的文件系统，所以我们进行了重新设计，下面是优化后的设计。
+
+![插图3](https://ask.qcloudimg.com/developer-images/article/8345537/hq6e1k83bu.png)
+
+这里的想法是让Worker和Web Worker/Child Process都能从IDBFS/NODEFS中写和读，这就释放了我们在最初设计中看到的瓶颈。
+
+虽然它看起来比较复杂，但它解决了ffmpeg.wasm中处理大文件的问题。(你可以[下载](https://drive.google.com/file/d/1uIv_RTzXyS1gf7_erQmOJ_vNRCbAfvgd/view)一个90MB的视频文件查看)
+
+> 这种方法的一个主要副作用是，它在用户的IndexedDB（浏览器）和文件系统（Node.js）中存储了大量数据。记得在可能的情况下进行清理、清除。
+
+第6部分就到此为止，感谢您的时间，期待在下一部分看到您。😃
+
+代码库：
+
+- ffmpeg-core.js: https://github.com/ffmpegwasm/FFmpeg
+- ffmpeg.wasm: https://github.com/ffmpegwasm/ffmpeg.wasm
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
