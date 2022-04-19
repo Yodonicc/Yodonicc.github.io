@@ -16,7 +16,7 @@ categories: 前端 ECMAScript
 
 浏览器支持情况：
 
-
+![新封面2.jpeg](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e9e7ba1d61fd41c4ba3e1711ff75d09c~tplv-k3u1fbpfcp-watermark.image?)
 
 [MDN官方声明](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone)
 
