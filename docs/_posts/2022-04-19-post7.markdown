@@ -1,0 +1,119 @@
+---
+layout: post
+title: "ECMAScript 2021新特性，1行代码搞定深拷贝"
+date: 2022-04-19 09:02:20 -0000
+categories: 前端 ECMAScript
+---
+> 作者：[Surma](https://web.dev/authors/surma/)
+>
+> 原文链接：[Deep-copying in JavaScript using structuredClone](https://web.dev/structured-clone/)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> JavaScript现在配备了structuredClone()，一个用于深拷贝的内置函数。
+
+长久以来，你不得不借助于黑魔法和第三方库来创建一个JavaScript值的深拷贝。现在，ECMAScript 2021提供了`structuredClone()`，这是一个用于深拷贝的内置函数。
+
+浏览器支持情况：
+
+
+
+[MDN官方声明](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone)
+
+在写这篇文章的时候，所有的浏览器都已经在他们的最新版本中实现了这个API，Firefox已经在Firefox 94中把它发布到了稳定版。此外，Node 17和Deno 1.14也实现了这个API。你现在就可以开始使用这个功能了，而且不会觉得有什么问题。
+
+### 浅拷贝
+
+在JavaScript中复制一个值几乎都是浅层的，而不是深层的。这意味着对深度嵌套的值的改变将在副本和原始值中都是可见的。
+
+在JavaScript中使用[对象展开操作符(...)](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Spread_syntax)是创建浅层拷贝的一种方法：
+
+``````javascript
+const myOriginal = {
+  someProp: "有一个字符串值"。
+  anotherProp: {
+    withAnotherProp: 1,
+    andAnotherProp: true
+  }
+};
+
+const myShallowCopy = {...myOriginal};
+``````
+
+
+在浅层副本上直接添加或改变一个属性，只会影响副本，而不会影响原版。
+
+``````javascript
+myShallowCopy.aNewProp = "a new value";
+console.log(myOriginal.aNewProp)
+// ^ logs `undefined`
+``````
+
+然而，添加或改变一个深度嵌套的属性会同时影响副本和原版。
+
+``````javascript
+myShallowCopy.anotherProp.aNewProp = "a new value";
+console.log(myOriginal.anotherProp.aNewProp) 
+// ^ logs `a new value`
+``````
+
+表达式`{...myOriginal}`使用Spread Operator在myOriginal的（可枚举的）属性上进行迭代。它使用属性名称和值，并将它们逐一分配给一个新创建的空对象。因此，产生的对象在结构上是相同的，但有它自己的属性和值列表的副本。值也被复制了，但所谓的原始值与非原始值的处理方式不同。引用[MDN](https://developer.mozilla.org/zh-CN/docs/Glossary/Primitive)的话：
+
+> 在JavaScript中，原始值（primitive value, primitive data type）是指不属于对象且没有方法的数据。有七种原始数据类型：字符串、数字、bigint、布尔值、undefined、symbol和null。
+>
+> MDN - *Primitive*
+
+非原始值被处理为引用，这意味着复制该值的行为实际上只是复制了对同一底层对象的引用，从而产生了浅层复制行为。
+
+### 深拷贝
+
+与浅层拷贝相反的是深层拷贝。深度拷贝算法也是一个一个地拷贝一个对象的属性，但是当它找到另一个对象的引用时，会递归地调用自己，同时也创建一个该对象的拷贝。这对于确保两段代码不会意外地共享一个对象并在不知情的情况下操纵对方的状态非常重要。
+
+过去，在JavaScript中没有简单或好的方法来创建一个深度拷贝的值。许多人依靠第三方库，如Lodash的cloneDeep()函数。可以说，这个问题最常见的解决方案是一个基于JSON的黑魔法hack：
+
+``````javascript
+const myDeepCopy = JSON.parse(JSON.stringify(myOriginal));
+``````
+
+事实上，这是一个非常流行的解决方法，V8积极优化JSON.parse()，特别是上面的模式，使其尽可能快。虽然它很快速，但也有一些缺点和绊脚石：
+
+- **递归数据结构**。当你给它一个递归数据结构时，`JSON.stringify()`会抛出(异常)。在处理链表或树时，这很容易发生。
+- **内置类型**。`JSON.stringify()`如果包含其他JS内置类型，如Map、Set、Date、RegExp或ArrayBuffer，就会抛出(异常)。
+- **函数**。`JSON.stringify()`将悄悄地丢弃函数。
+
+### 结构化克隆
+
+ECMAScript已经需要在一些地方创建JavaScript值的深度拷贝的能力。在IndexedDB中存储一个JS值需要某种形式的序列化，这样它就可以被存储在磁盘上，之后再反序列化以恢复JS值。同样地，通过`postMessage()`向WebWorker发送消息需要将JS值从一个JS领域转移到另一个领域。用于此的算法被称为 "结构化克隆"，直到不久之前，开发者还不容易直接使用。
+
+这一点现在已经改变了! HTML规范已经被修改，公开了一个名为`structuredClone()`的函数，该函数正是运行这种算法，作为开发者轻松创建JavaScript值的深度拷贝的一种手段。
+
+``````javascript
+const myDeepCopy = structuredClone(myOriginal);
+``````
+
+这就是了！这就是整个API。如果你想深入了解细节，可以看看[MDN的文章](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone)。
+
+### 特点和限制
+
+结构化克隆解决了`JSON.stringify()`技术的许多（尽管不是全部）缺点。结构化克隆可以处理循环的数据结构，支持许多内置的数据类型，一般来说更加稳健，通常速度更快。
+
+然而，它仍然有一些限制，可能让你措手不及：
+
+- **原型**。如果你对一个类的实例使用`structuredClone()`，你会得到一个普通的对象作为返回值，因为结构化克隆抛弃了对象的原型链。
+- **函数**。如果你的对象包含函数，它们将被*悄悄*地丢弃。
+- **不可克隆的对象**。有些值是不可结构化克隆的，最明显的是Error和DOM节点。这将导致`structuredClone()`被抛出。
+
+如果这些限制对你的用例来说是个障碍，Lodash等库仍然提供了其他深度克隆算法的定制实现，这些算法可能适合你的用例，也可能不适合你。
+
+### 性能
+
+虽然我没有做新的微观基准比较，但我在2018年初做了一个[比较](https://surma.dev/things/deep-copy/index.html)，在`structuredClone()`被曝光之前。那时，`JSON.parse()`是非常小的对象的最快选择。我预计这将保持不变。依靠结构化克隆的技术对于较大的对象来说（明显）更快。考虑到新的structuredClone()没有滥用其他API的开销，而且比JSON.parse()更强大，我建议你把它作为创建深度拷贝的默认方法。
+
+### 结论
+
+如果你需要在JS中创建一个深度拷贝的值——可能是因为你使用了不可变的数据结构，或者你想确保一个函数可以在不影响原始对象的情况下操作一个对象——你不再需要去寻找黑魔法或第三方库。ECMAScript 2021现在有了`structuredClone`(https://developer.mozilla.org/en-US/docs/Web/API/structuredClone)。欢呼吧！
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
+
