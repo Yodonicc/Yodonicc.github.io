@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "CSS 2020 Level 4：缩短选择器长度的新伪类"
-date: 2022-04-20 09:02:20 -0000
+date: 2022-04-20 06:02:20 -0000
 categories: frontend CSS
 ---
 > 作者：[Adam Argyle](https://web.dev/authors/adamargyle/)
