@@ -1,0 +1,138 @@
+---
+layout: post
+title: "CSS 2020 Level 4：缩短选择器长度的新伪类"
+date: 2022-04-20 09:02:20 -0000
+categories: frontend CSS
+---
+> 作者：[Adam Argyle](https://web.dev/authors/adamargyle/)
+>
+> 原文链接：[New CSS functional pseudo-class selectors `:is()` and `:where()`](https://web.dev/css-is-and-where/)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> 这些对CSS选择器语法的看似小的补充，将产生很大的影响。
+
+在编写CSS时，你有时会用很长的选择器列表来针对多个元素的相同样式规则。例如，如果你想对一个标题元素内的任何<b>标签进行颜色调整，你可以这样写。
+
+``````css
+h1 > b, h2 > b, h3 > b, h4 > b, h5 > b, h6 > b {
+  color: hotpink;
+}
+``````
+
+更好的选择是，你可以使用`:is()`，在避免过长选择器的同时提高可读性。
+
+``````css
+:is(h1,h2,h3,h4,h5,h6) > b {
+  color: hotpink;
+}
+``````
+
+可读性和更短的选择器只是`:is()`和`:where()`给CSS带来的价值的一部分。在这篇文章中，你会了解到这两个功能性伪选择器的语法和价值。
+
+<video src="../public/post8video1.mp4"></video>
+<center>使用:is()前后的视觉效果</center>
+
+浏览器支持情况：
+
+Chromium（>=88）、Firefox（>=78）和Safari（>=14）都支持` :is` 和` :where `伪类。更多信息请参见MDN的[浏览器兼容性表](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:where#Browser_compatibility)。一些旧的浏览器版本支持` :is() `选择器的方式为` :match()` 或 `-webkit-any()`。欲了解更多信息，请参阅MDN上的[:is()](https://developer.mozilla.org/zh-CN/docs/Web/CSS/:is)页面。
+
+### 初识 :is() 和 :where() 
+
+这些都是功能性的伪类选择器，注意末尾的`()`和它们以`:`开头的方式。可以把它们看作是运行时的动态函数调用，与元素相匹配。在编写CSS时，它们为你提供了一种在选择器的中间、开头或结尾将元素分组的方法。它们还可以改变特异性，让你有权力取消或增加特异性。
+
+### 选择器分组
+
+`:is()`可以做任何关于分组的事情，` :where()`也可以。这包括在选择器的任何地方使用，嵌套和堆叠它们。对于你期待的完全的CSS灵活性，这里有几个例子。
+
+``````css
+/* at the beginning */
+:where(h1,h2,h3,h4,h5,h6) > b {
+  color: hotpink;
+}
+
+/* in the middle */
+article :is(header,footer) > p {
+  color: gray;
+}
+
+/* at the end */
+.dark-theme :where(button,a) {
+  color: rebeccapurple;
+}
+
+/* multiple */
+:is(.dark-theme, .dim-theme) :where(button,a) {
+  color: rebeccapurple;
+}
+
+/* stacked */
+:is(h1,h2):where(.hero,.subtitle) {
+  text-transform: uppercase;
+}
+
+/* nested */
+.hero:is(h1,h2,:is(.header,.boldest)) {
+  font-weight: 900;
+}
+``````
+
+
+上述每个选择器例子都展示了这两个功能伪类的灵活性。要找到你的代码中可以从`:is()`或`:where()`中受益的地方，寻找有多个逗号的选择器和选择器重复。
+
+### 使用简单和复杂的选择器与:is()
+
+如果想学习选择器，请查看Learn CSS上的[选择器模块](https://web.dev/learn/css/selectors/#complex-selectors)。这里有几个简单/复杂选择器的例子，以帮助说明这种能力。
+
+``````css
+article > :is(p,blockquote) {
+  color: black;
+}
+
+:is(.dark-theme.hero > h1) {
+  font-weight: bold;
+}
+
+article:is(.dark-theme:not(main .hero)) {
+  font-size: 2rem;
+}
+``````
+
+> **小窍门**
+>
+> 通常情况下，当使用一个`,`来创建一个选择器列表时，如果任何一个选择器无效，所有的选择器都会无效，列表将无法匹配元素。`:is()`和`:where()`是很宽容的，可以让你摆脱困境！也就是说，它们对错误是宽容的。
+
+到目前为止，` :is()` 和` :where() `在语法上是可以互换的。现在是时候看看它们有什么不同了。
+
+### :is()和:where()之间的区别
+
+当涉及到特异性时，`:is()`和`:where()`有很大分歧。如果想了解一下特异性，请看Learn CSS上的[特异性模块](https://web.dev/learn/css/specificity/)。
+
+简而言之
+
+- `:where()`没有特异性。
+  `:where()`超过了了作为功能参数传递的选择器列表中的所有特殊性。这是一个首要的选择器功能。
+
+- `:is()`采取最具体的选择器的特殊性。
+
+  `:is(a,div,#id)`有一个ID的特异性数值，100。
+
+只有当我对分组过于关注时，才会从列表中选择最高的特异性选择器。我总是能够通过将高特异性选择器移到它自己的选择器中来提高可读性，因为它不会有那么大的影响。下面是一个例子，说明我的意思。
+
+``````css
+article > :is(header, #nav) {
+  background: white;
+}
+
+/* better as */
+article > header,
+article > #nav {
+  background: white;
+}
+``````
+
+有了`:where()`，我等待着看到CSS官方提供没有特定性的版本。作者样式和第三方库样式之间的特定性竞争可以结束了。在编写CSS时，将没有特定性可供竞争。CSS在这样的分组功能上已经工作了很长时间，它就在这里，而且在很大程度上仍然是未开发的领域。祝你在编写更顺手的CSS和删除逗号时获得快乐！
+
+文中照片来源：[Markus Winkler](https://unsplash.com/@markuswinkler) on [Unsplash](https://unsplash.com/photos/afW1hht0NSs)
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
