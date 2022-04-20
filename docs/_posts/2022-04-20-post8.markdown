@@ -31,7 +31,7 @@ h1 > b, h2 > b, h3 > b, h4 > b, h5 > b, h6 > b {
 可读性和更短的选择器只是`:is()`和`:where()`给CSS带来的价值的一部分。在这篇文章中，你会了解到这两个功能性伪选择器的语法和价值。
 
 <video>
-   <source id="mp4" src="/public/post8video1.mp4" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
 </video>
 <center>使用:is()前后的视觉效果</center>
 
