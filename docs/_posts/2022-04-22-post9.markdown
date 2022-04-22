@@ -1,0 +1,106 @@
+---
+layout: post
+title: "Localhost何时要用HTTPS？"
+date: 2022-04-20 06:02:20 -0000
+categories: frontend HTTP
+---
+
+> 作者：[Maud Nalpas](https://web.dev/authors/maudn/)
+>
+> 原文链接：[When to use HTTPS for local development](https://web.dev/when-to-use-local-https/)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> 使用`http://localhost` 进行本地开发在大多数情况下是没有问题的，除了一些特殊情况。这篇文章解释了什么时候需要用HTTPS运行你的本地开发网站。
+
+在这篇文章中，关于`localhost`的说法对`127.0.0.1`和`[::1]`也是有效的，因为它们都描述了本地计算机地址，也叫 "回环地址"。另外，为了使事情简单，不指定端口号。因此，当你看到` http://localhost`时，请将其理解为` http://localhost:{PORT} `或 `http://127.0.0.1:{PORT}`。
+
+### 总结
+
+在本地开发时，默认使用`http://localhost`。Service Workers、Web Authentication API等都可以正常工作。然而，在以下情况下，你需要HTTPS来进行本地开发。
+
+- 在不同的浏览器中以一致的方式设置安全cookies
+- 调试mixed-content的问题
+- 使用HTTP/2及更高版本
+- 使用需要HTTPS的第三方库或API
+- 使用自定义的主机名
+
+<image style="max-width: 730px;" >
+   <source id="img" src="/public/post9image1.png" style="max-width: 730px;" >
+</image>
+
+<center>在本地开发中需要使用HTTPS的情况列表
+  
+</center>
+
+> 如果你需要HTTPS用于上述用例之一，请查看如何使用HTTPS进行本地开发。
+
+✨ 这就是你需要知道的一切。如果你对更多的细节感兴趣，请继续阅读!
+
+### 为什么你的开发网站应该更具有安全性
+
+为了避免遇到意想不到的问题，你希望你的本地开发网站尽可能地表现得像你的生产网站。因此，如果你的生产网站使用HTTPS，你希望你的本地开发网站表现得**像一个HTTPS网站**。
+
+> 警告：
+>
+> 如果你的生产环境没有使用HTTPS，请将其作为优先事项。
+
+### 默认使用`http://localhost`
+
+浏览器以一种特殊的方式对待`http://localhost`：**虽然它是HTTP，但它大多表现得像一个HTTPS网站**。
+
+在`http://localhost`，Service Workers、传感器API、Authentication API、支付以及[其他需要一定安全保障的功能](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts/features_restricted_to_secure_contexts)都得到了支持，并且表现得与HTTPS网站完全一样。
+
+### 什么时候为本地开发使用HTTPS？
+
+你可能会遇到这样的特殊情况：`http://localhost `不像一个 HTTPS 网站，或者你可能只是想使用一个非` http://localhost `的自定义网站名称。
+
+在以下情况下，你需要使用HTTPS进行本地开发。
+
+- 你需要在本地设置一个`Secure`、或`SameSite:none`、或具有`__Host`前缀的[cookie](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Set-Cookie)。`Secure`cookie只在HTTPS上设置，而不是在所有浏览器的`http://localhost`。而且，由于`SameSite:none`和`__Host`也要求cookie是`Secure`的，在你的本地开发网站上设置这种cookie也需要HTTPS。
+
+> 小贴士
+>
+> 当涉及到在本地设置`Secure`cookie时，并非所有的浏览器都以同样的方式行事。例如，Chrome和Safari不在本地主机上设置`Secure`cookie，但Firefox会。在Chrome中，这被认为是一个错误。
+
+- 你需要在本地调试一个只在HTTPS网站上发生，而在HTTP网站上不发生的问题，甚至`http://localhost`，例如 [mixed-content](https://developer.mozilla.org/docs/Web/Security/Mixed_content) 问题。
+- 你需要在本地测试或重现HTTP/2或更新的特定行为。例如，如果你需要测试HTTP/2或更新版本的加载性能。不安全的HTTP/2或更新版本不被支持，甚至在`localhost`上也不被支持。
+- 你需要在本地测试需要HTTPS的第三方库或API（例如OAuth）。
+- 你没有使用`localhost`，而是使用一个用于本地开发的自定义主机名，例如`mysite.example`。通常，这意味着你已经覆盖了你的本地hosts文件。
+
+<image style="max-width: 730px;" >
+   <source id="img" src="/public/post9image2.jpeg" style="max-width: 730px;" >
+</image>
+
+<center>终端编辑hosts文件的屏幕截图
+  
+</center>
+
+​		在这种情况下，Chrome、Edge、Safari和Firefox默认不认为`mysite.example`是安全的，尽管它是一个本地		网站。所以它不会表现得像一个HTTPS网站。
+
+- 其他情况! 这不是一个详尽的列表，但是如果你遇到这里没有列出的情况，你就会知道：事情会在`http://localhost`上出意外，或者它的行为不太像你的生产网站。🙃
+
+**在所有这些情况下，你需要在本地开发中使用HTTPS**。
+
+### 如何在本地开发中使用HTTPS？
+
+如果你需要使用HTTPS进行本地开发，请期待本系列的下一篇文章：如何在Localhost使用HTTPS开发？
+
+### 如果你使用自定义主机名的提示
+
+**如果你使用一个自定义的主机名，例如，编辑你的hosts文件**：
+
+- 不要使用像`mysite`这样的裸主机名，因为如果有一个[顶级域名（TLD）](https://en.wikipedia.org/wiki/Top-level_domain)恰好有相同的名字（`mysite`），你会遇到问题。而且，这并非不可能：在2020年，有超过1500个顶级域名，而且这个名单还在不断增加。`coffee`, `museum`, `travel`，以及许多大公司的名称（甚至可能是你正在工作的公司！）都是顶级域名。请看这里的[完整列表](https://data.iana.org/TLD/tlds-alpha-by-domain.txt)。
+- 只使用属于你的域名，或为此目的保留的域名。如果你没有自己的域名，你可以使用`test`或`localhost`（`mysite.localhost`）。`test`在浏览器中没有特殊处理，但`localhost`有。Chrome和Edge对`http://<name>.localhost`有特殊支持 ，就像对localhost支持一样，它们将表现得很安全。试试吧：在localhost上运行任何网站，在Chrome或Edge中访问`http://<你喜欢的任何名字>.localhost:<你的端口>`。这可能很快就能在Firefox和[Safari](https://bugs.webkit.org/show_bug.cgi?id=160504)中实现。你之所以可以这样做（拥有像`mysite.localhost`这样的子域），是因为`localhost`不仅仅是一个主机名：它也是一个完整的顶级域名，就像`com`。
+
+### 了解更多
+
+- [Secure contexts](https://developer.mozilla.org/docs/Web/Security/Secure_Contexts)
+- [localhost as a secure context](https://www.w3.org/TR/secure-contexts/#localhost)
+- [localhost as a secure context in Chrome](https://www.chromestatus.com/feature/6269417340010496)
+
+非常感谢所有审稿人的贡献和反馈，特别是Ryan Sleevi、Filippo Valsorda、Milica Mihajlija、Rowan Merewood和Jake Archibald。🙌
+
+文中照片来源： [@moses_lee](https://unsplash.com/@moses_lee) on [Unsplash](https://unsplash.com/photos/Q2Xy_hYzrgg)
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
