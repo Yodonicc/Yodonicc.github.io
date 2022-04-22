@@ -25,8 +25,7 @@ categories: frontend HTTP
 - 使用需要HTTPS的第三方库或API
 - 使用自定义的主机名
 
-<image style="max-width: 730px;" >
-   <source id="img" src="/public/post9image1.png" style="max-width: 730px;" >
+<image id="img" src="/public/post9image1.png" style="max-width: 730px;" >
 </image>
 
 <center>在本地开发中需要使用HTTPS的情况列表
@@ -68,8 +67,7 @@ categories: frontend HTTP
 - 你需要在本地测试需要HTTPS的第三方库或API（例如OAuth）。
 - 你没有使用`localhost`，而是使用一个用于本地开发的自定义主机名，例如`mysite.example`。通常，这意味着你已经覆盖了你的本地hosts文件。
 
-<image style="max-width: 730px;" >
-   <source id="img" src="/public/post9image2.jpeg" style="max-width: 730px;" >
+<image id="img2" src="/public/post9image2.jpeg" style="max-width: 730px;" >
 </image>
 
 <center>终端编辑hosts文件的屏幕截图
