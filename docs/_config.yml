@@ -29,6 +29,8 @@ url: "" # the base hostname & protocol for your site, e.g. http://example.com
 wechat_username: Yodonicc
 github_username:  Yodonicc
 
+google_analytics: G-D2XH1YRSC4
+
 # Build settings
 theme: minima
 plugins:
