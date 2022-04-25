@@ -8,7 +8,7 @@ categories: frontend FFmpeg
 >
 > 原文链接：[Speedup FFmpeg without compiling from source code](https://itnext.io/speedup-ffmpeg-without-compiling-from-source-code-c1f34d4ec544)
 >
-> 译者：[Yodonicc](https://cloud.tencent.com/developer/user/8345537)
+> 译者：[Yodonicc](https://github.com/Yodonicc)
 
 FFmpeg是一个很好的多媒体处理工具，默认情况下，它使用多线程的CPU来完成任务，这给你的电脑带来了很高的负荷，在大多数时候是很慢的。
 
