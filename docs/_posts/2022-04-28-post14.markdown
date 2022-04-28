@@ -1,0 +1,100 @@
+---
+layout: post
+title: "系统学习React的技术关键词"
+date: 2022-04-28 06:02:20 -0000
+categories: frontend React
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+
+> 作者：[Shaan Alam](https://dev.to/shaan_alam)
+>
+> 原文链接：[How to learn React - The Effective way](https://dev.to/shaan_alam/how-to-learn-react-the-effective-way-2km7)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+
+
+### 什么是React？
+
+React是一个免费的、开源的前端JavaScript库，通过将你的应用程序划分为更小的组件来构建复杂的用户界面。它由Facebook和一个开发者社区维护。
+
+### 学习React的先决条件
+
+在学习React或尝试学习React之前，我想说的是要熟悉HTML、CSS和JavaScript。你可以在2-3周内学会HTML和CSS，因为它们用于为你的Web应用程序创建布局。JavaScript需要一些时间来学习，因为它是一种编程语言。至少要花一两个月的时间学习JavaScript。不要只是学习和学习，还要创建小项目来实现你所获得的知识。你可以创建一些小型项目，如待办事项列表、计算器、随机笑话生成器等。
+
+### 编写JavaScript
+
+在学习JavaScript时，你必须避免我所犯的一些错误。当我学习JavaScript时，我认为我必须成为一个绝对的JavaScript大师才能编写React代码（这是不正确的）。我开始学习高级概念（作为一个初学者），失败后，我认为我不够好。但是，让我告诉你，作为一个初学者，你需要学习足够多的东西，这样你就可以用普通的JavaScript创建基本项目。**一些需要深入学习和理解的主题**是：
+
+- 变量
+- if/else条件和switch语句
+- var、let和const之间的区别
+- 函数
+- 数组
+- 数组方法，如filter、map、reduce等。
+- ES6新特性
+- Promise
+- 回调
+- Async/await
+- 类和OOPs的概念
+- 与API一起工作 再次强调，不要只是学习，要应用！!
+
+### React
+
+在这个时候，当你已经学会了JavaScript的精华，是时候让你深入了解React了。你可以通过阅读React官方文档或参加React官方教程开始学习React，以了解React的工作原理。React文档写得非常好，涵盖了React的基础知识。好好学习这些主题，从根本上了解React。
+
+- JSX
+- 组件（函数组件和类组件）
+- 生命周期方法
+- State
+- Props
+- 处理事件
+- 表单
+- 条件渲染
+- 与第三方API合作。一旦你对这些主题有了了解，你就可以创建项目来实现它们了。你可以创建新的项目，或者重新制作你在使用React学习虚构的JavaScript时做的项目。
+
+### React 路由
+
+了解React router。React router是一个React的路由库，它将帮助你在你的React App中浏览不同的页面。了解加载特定页面的内容，在URL中传递参数，重定向等。另外，要明白react router不是React的一部分，它是为React制作的一个路由库。
+
+### 高级React
+
+现在，你有了基本的React知识，也创建了一些基本项目，是时候学习一些高级概念了，比如**Hooks**、**Context**等。看看React文档并学习这些概念吧。
+
+- Context
+- 钩子
+- 错误边界
+- 高阶组件
+- 代码拆分
+- Refs
+- Forwarding Refs
+- Render props
+
+### 一些额外的东西!
+
+一旦你学会了React的基础知识，你还可以学习一些额外的库，比如**Material UI**、**reactstrap**、**tailwindcss**、**Semantic UI**等等。这些库会在你日常的React开发生活中帮助你。然而，学习所有的东西并不是强制性的，你可以在你完成React基础知识并能做项目时尝试学习它们。
+
+### 恭喜你 🥳
+
+你是一个React开发者。现在你只需要通过创建项目和经常访问React文档并学习新东西来磨练你的技能。
+
+###  一些学习React的资源 -
+
+- [React JS速成班 2021 by Traversy Media](https://www.youtube.com/watch?v=w7ejDZ8SWv8)
+- [全套React课程2020 - 学习基础知识、钩子、上下文API、React Router、自定义钩子 by FreeCodeCamp](https://www.youtube.com/watch?v=4UZrsTqkcW4)
+- [完整的现代React播放列表 by The Net Ninja](https://www.youtube.com/watch?v=j942wKiXFu8&list=PL4cUxeGkcC9gZD-Tvwfod2gaISzfRiP9d)
+
+### 一些有用的提示
+
+- 不要试图一下子学会所有的东西，理解并接受你是一个初学者的事实，花足够多的时间来学习这些概念
+- 不要害怕写坏代码。就像我之前提到的，你是一个初学者，在某些时候每个人都是。要明白，`进步 >>>> 完美`
+- 避免`教程地狱`🤯。教程地狱指的是当你跟着一个又一个的教程学习时，你认为你正在学习，而事实上你什么也没学到。如果你在看Youtube的教程，不要只是看一个又一个视频。意识到你陷入了教程地狱，停止观看更多的视频，开始创造你自己的项目。
+- 让谷歌、StackOverflow、文章和博客成为你最好的朋友。开始在谷歌上搜索你的问题，你的问题/错误很有可能已经被互联网上的其他人解决了。
+
+译者注：国外的新手技术教程很短，什么都说了，又像是什么都没说，听君一席话如听一席话。值得推荐的是，关键点确实抓得很准，能让新人不会在茫茫多的官方文档里“平均使力”，而能分清主次，“有的放矢”。
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
