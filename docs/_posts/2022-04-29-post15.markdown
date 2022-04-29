@@ -1,0 +1,128 @@
+---
+layout: post
+title: "时至今日，浏览器色彩居然仍旧失真？"
+date: 2022-04-29 06:02:20 -0000
+categories: frontend browser
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：未知
+>
+> 原文链接：[Web color is still broken](https://webcolorisstillbroken.com/)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> “计算机色彩被破坏”这篇[文章](https://www.youtube.com/watch?v=LKnqECcg6Gw)发表7年后的今天(2022)，网络上的色彩仍然是错误的。失真现象包括色彩、透明度和缩放比例，在图像、CSS、SVG都有失真。
+
+### 正确的颜色混合
+
+<image id="img" src="/public/post15image1.png" style="max-width: 730px;" >
+</image>
+*正确呈现三原色之间的渐变*
+
+物理上正确的颜色渐变（例如，沿着颜色之间的失焦边缘，你会得到想要的），在中点周围同样明亮，代表两种颜色之间的平均。不正确的渲染会使中间变成浑浊的暗色。
+
+还有其他一些方法，以微妙的方式做渐变，对设计来说是很有用的，但浏览器的不正确方式却适得其反。
+
+### 你的浏览器色彩失真情况
+
+<image id="img" src="/public/post15image2.png" style="max-width: 730px;" >
+</image>
+
+*CSS 渐变*
+
+<image id="img" src="/public/post15image3.png" style="max-width: 730px;" >
+</image>
+
+*SVG 渐变*
+
+### 正确的透明度
+
+<image id="img" src="/public/post15image4.png" style="max-width: 730px;" >
+</image>
+
+*绿色和白色为25%的不透明度，黑色为75%的不透明度*
+
+在25%的透明度下叠加明亮的颜色，应该是为了正确地染上底层的黑暗区域，像灯光照在投影屏幕上一样洗掉它们。不正确的渲染会导致过高的对比度，就像我们刚刚调高了相机的曝光度或粘上了一个不亮的滤镜。
+
+叠加75%的黑色不应该完全盖住明亮的区域，也不应该压坏黑色。想一想，如果你有4盏灯，关掉3盏，场景会有多亮。
+
+我们有理由想要一个不同的效果，这就是为什么我们有[混合模式](https://en.wikipedia.org/wiki/Blend_modes)，但这些是明确的设计选择。 透明度混合需要像本例中那样工作，以便像字体和形状抗锯齿这样的东西能够正常工作并看起来正确，在不同的背景颜色下具有一致的重量和平滑的边缘。
+
+### 你的浏览器透明度失真情况
+
+<image id="img" src="/public/post15image5.png" style="max-width: 730px;" >
+</image>
+
+*PNG的透明度*
+
+<image id="img" src="/public/post15image6.png" style="max-width: 730px;" >
+</image>
+
+*CSS rgba()背景*
+
+<image id="img" src="/public/post15image7.png" style="max-width: 730px;" >
+</image>
+
+*CSS的不透明度*
+
+<image id="img" src="/public/post15image8.png" style="max-width: 730px;" >
+</image>
+SVG填充不透明度*
+
+### 正确的缩放比例
+
+<image id="img" src="/public/post15image9.png" style="max-width: 730px;" >
+</image>
+
+*一个按2次方缩小的测试图像*
+
+灰色方块的外部和内部应该是相同的整体亮度，因为它们都发出了平均亮度为白色一半的光。不正确的渲染会使外侧的部分更暗。
+
+图像在缩小时应保持相同的整体亮度。不正确的渲染使最小的图像过于黑暗。
+
+如果你有一个HiDPI显示器或正在使用缩放功能，你的浏览器已经在缩放了（不正确的），全尺寸的图像看起来会有问题。
+
+### 你的浏览器缩放比例失真情况
+
+<image id="img" src="/public/post15image10.png" style="max-width: 730px;" >
+</image>
+
+*<img> with dimensions*
+
+<image id="img" src="/public/post15image11.png" style="max-width: 730px;" >
+</image>
+
+*CSS背景-图像*
+
+<image id="img" src="/public/post15image12.png" style="max-width: 730px;" >
+</image>
+
+*CSS转换*
+
+<image id="img" src="/public/post15image13.png" style="max-width: 730px;" >
+</image>
+
+*SVG图像*
+
+### 发生甚么事了？
+
+网络上几乎所有的颜色（从普通PNG文件中的数据到CSS和SVG中的十六进制值）都不是以实际的颜色强度来表示的，而是使用一种叫做 "8位[sRGB](https://en.wikipedia.org/wiki/SRGB) "的有损压缩算法。大多数人称其为 "色彩空间"，但它的主要目的是用较少的比特来表示色彩数据，而如果你存储的是与光线强度相对应的实际数字亮度值，则需要较少的比特来保证质量。因此，把它看作是一种有损失的压缩技术更为有用。
+
+不幸的是，通过称其为 "色彩空间"，我们误导了绝大多数开发者，使他们相信你可以对sRGB色彩进行计算，而通过向用户展示原始的sRGB数字，我们又误导他们认为这些数字有合理的含义。就像你不能在没有解压的情况下混合两个MP3文件的比特，并期望得到像两个声音正确混合在一起的东西一样，你不能把两个sRGB颜色值，混合起来，并期望得到正确的颜色。然而，每个主要的浏览器都是这样做的。
+
+处理sRGB数据的正确方法是先将其转换为线性RGB值，然后进行处理，如果需要，再将其转换回sRGB。如果你直接对sRGB颜色数据进行任何数学运算，你的代码就会被破坏。请不要这样做。现在是2022年，是时候让计算机图形正常工作了。
+
+有一个SVG的`color-interpolation`属性可以解决这个问题，这个页面试图使用它。不幸的是，目前还[没有浏览器实现它](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/color-interpolation#browser_compatibility)。这个属性最早是在2003年的[SVG 1.1](https://www.w3.org/TR/2003/REC-SVG11-20030114/painting.html#ColorInterpolationProperties)中指定的。我们即将迎来浏览器不屑于实现正确颜色混合的第20年。
+
+值得注意的是，GPU制造商和大多数游戏开发者早就想通了这一点，因为现实环境需要线性处理，尤其是复杂的效果。现代GPU在加载和渲染图像时，可以使用  [from](https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_sRGB.txt)/[to](https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_framebuffer_sRGB.txt) sRGB，而不会有任何性能损失。当使用破损的设计工具的设计师发现[东西在正确实现的游戏引擎中看起来不一样](https://twitter.com/davidhampson/status/1517097606425550848)时，这最终会造成痛苦。
+
+在GIMP 2.10.30中创建的参考图像（这是少数几个真正能够正确进行混合和渐变的开源图像编辑应用程序之一）。GIMP 2.10是第一个把这个做对的版本，早在2018年。
+
+* 从技术上讲，同等的音频压缩算法是[µ-law编码](https://en.wikipedia.org/wiki/%CE%9C-law_algorithm)。当你试图将两个µ-law音频文件混合在一起而不进行适当的解码时(合成音频[链接](https://webcolorisstillbroken.com/misc/mulaw_mix.mp3))，就会出现这种情况（虽然有一些比特处理，使编码单调，所以它是公平的）。这就是我们对我们的颜色所做的事情。
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
