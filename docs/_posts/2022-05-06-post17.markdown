@@ -1,0 +1,130 @@
+---
+layout: post
+title: "用Rust和React创建一个富文本编辑器"
+date: 2022-05-06 06:02:20 -0000
+categories: frontend 
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：Arend van Beelen
+>
+> 原文链接：[Creating a Rich Text Editor using Rust and React](https://fiberplane.dev/blog/creating-a-rich-text-editor-using-rust-and-react/)
+>
+> 译者：[Yodonicc](https://cloud.tencent.com/developer/user/8345537)
+
+### 简介
+
+在Fiberplane，我们最近遇到了一个有趣的挑战：我们正在使用的富文本编辑器库已经过时了。我们曾经使用[Slate.js](https://docs.slatejs.org/)——一个很好的编辑器——但是当我们为协作编辑实现我们自己的富文本基元时，我们发现我们自己的基元和Slate的数据模型之间的脱节是一个阻碍因素。所以我们开始思考——如果我们建立自己的富文本编辑器（RTE, Rich Text Editor）会怎样？
+
+从一个非常高层次的角度来看，一个富文本编辑器是由两个部分组成的。
+
+- **一个数据模型和对其进行操作的核心逻辑**。
+- **一个渲染上述数据模型的状态并处理用户互动的视图**。
+
+我们在视图中使用了Slate，但结果是它也拉入了自己的数据模型。如果我们可以直接在React中实现视图，我们可以大大简化我们的堆栈，并完全控制它的每个方面。缺点是什么？RTEs因为需要支持复杂的用户交互而臭名昭著，而现在我们需要自己处理每一个交互。
+
+在这篇文章中，我们将讨论我们所面临的挑战以及我们如何解决这些问题。
+
+### 数据模型
+
+我们的产品是一个协作式的笔记本编辑器。笔记本是一个基于块的编辑器，由不同类型的单元组成，从文本单元到图片和图表。因此，我们确定了一个数据模型，它既有利于我们的协作功能，也有利于为我们在单元格内使用的任何富文本字段提供动力的RTE。在这篇文章中，我们将重点讨论`TextCell`。
+
+``````rust
+struct TextCell {
+    pub id: String,
+    pub content: String,
+    pub formatting: Option<Formatting>,
+}
+``````
+
+
+这里的`content`只是纯文本内容，而`formatting`是将纯文本变成富文本的东西。"多汁"的部分都在格式化类型里面。
+
+``````rust
+type Formatting = Vec<AnnotationWithOffset>;
+
+struct AnnotationWithOffset {
+    annotation: Annotation,
+    offset: u32,
+}
+
+enum Annotation {
+    StartBold,
+    EndBold,
+    StartItalics,
+    EndItalics,
+    StartLink { url: String },
+    EndLink,
+    /* more like these... */
+}
+``````
+
+正如你所看到的，这只不过是一个注释列表，它定义了要应用的格式化类型和它开始的偏移量。我们有意不选择类似于HTML的树状结构，因为格式化范围可以重叠，这将导致复杂的树状操作。此外，每个注释只有一个偏移量的简单性使我们很容易实现我们用于协作的操作转换（OT）算法。
+
+### 核心逻辑
+
+随着数据模型的出现，也带来了与之互动的代码。当你在一个单元格中打字时，我们在哪里插入新打的字符？这如何影响`content`和相关的`formatting`？如果你在一个选择上切换格式，应该发生什么？如果你将一个单元格从中间分割开来，又该怎么办？所有这些以及更多都在Rust的核心逻辑中实现。
+
+你要知道，无论如何我们都需要这些逻辑，因为我们的OT算法也需要它。但现在我们也能用同样的原语来驱动我们的编辑器。
+
+为了使这个逻辑易于测试，它被实现为纯函数，我们在[TypeScript的Redux reducer](https://fiberplane.dev/blog/writing-redux-reducers-in-rust/)中调用。我们创建了[`fp-bindgen`](https://github.com/fiberplane/fp-bindgen/)来生成Rust代码和调用它的TypeScript代码之间的绑定关系。
+
+为了适应RTE（当我们还在使用Slate时还不需要），我们不得不自己引入一段逻辑，就是光标管理。例如，当用户按下左方向键时，我们分派一个`MoveCursor`动作，其有效载荷如下。
+
+``````rust
+struct MoveCursorPayload {
+    pub delta: i32,
+    pub extend_selection: bool,
+    pub unit: CursorUnit,
+}
+``````
+
+`delta`指定光标是向前还是向后移动，通过指定一个`1`或`-1`的值。`extend_selection`属性是在用户按住`Shift`键时使用的，用来扩展当前的选择，或者在还没有选择的情况下创建一个。这个`unit`决定了我们是按[Unicode字母群](https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries)（用户通常称之为 "字符"）还是按单词移动光标，用于用户按住`Ctrl`/`⌥`键时。然后，我们的Rust还原器会处理这些动作，并处理所有的边缘情况，包括确保光标不会出现在`@`的中间。
+
+### 视图
+
+在我们RTE的大部分开发过程中，我们的编辑器甚至不是一个编辑器。至少从浏览器的角度来看不是。这是因为浏览器通常只识别两种类型的编辑器：纯文本编辑器，如`<input>`和`<textarea>`元素，以及使用一种叫做`contenteditable`的属性创建的自由格式编辑器。我们的编辑器两者都不是。
+
+我们在最终版本中仍然使用`contenteditable`属性，因为我们很快会讨论一些实际的影响，但我们有意识地决定尽可能少地依赖它。这对我们最初构建RTE的方式产生了深远的影响，你将在本节中看到。
+
+如果我们最初的版本根本没有使用`contenteditable`，那么我们怎么能够创建一个富文本编辑器？从用户的角度来看，RTE只不过是一个看起来像文本字段的东西，有一个光标，允许他们输入任何他们喜欢的内容。
+
+所以我们创建了一个普通的React组件，并根据单元格的`content`和`formatting`生成了富文本内容，然后使用`React.createElement()`插入实际的元素，这些元素只是一个应用了样式的`<span>`元素的平面列表（偶尔会有`<a>`元素洒在链接上）。然后，我们添加了必要的事件处理程序来捕捉用户的互动，这又将再次调用数据模型上的适当逻辑。
+
+那么用户的光标呢？只是另一个我们自己插入的小React组件。我们会在`useLayoutEffect()`钩子中测量它需要的位置，然后根据这个来定位它。
+
+所以......很简单，很容易，对吗？好吧，我们现在需要处理的大量的交互使这成为一个重大的挑战。例如，让我们再看一下光标导航。上一节中的例子显示了如何向左和向右移动光标。但是如果用户按了向下的箭头，他们的光标最终会在哪两个字符之间呢？这不是一个简单的问题，因为保持光标的垂直位置需要测量上面那一行的字符的位置。但你如何定义什么是 "上面那一行"？无论是`content`还是`formatting`都不包含这些信息。然后记住我们还必须支持选择。还有鼠标互动...
+
+这当然会让人感到不知所措，在开发过程中，可能很难保持对哪些工作和哪些不工作的概述。而这正是我们觉得最初没有`contenteditable`的工作很好的原因。我们自己做所有的事情，使我们非常清楚自己的位置。任何不工作的交互都是我们仍然需要实现的。没有什么会意外地工作，因为浏览器为我们解决了这个问题--浏览器在这里处于次要地位。
+
+当然，对于最终的版本，很难绕过使用`contenteditable`。这是因为如果没有它，浏览器扩展将无法识别你的编辑器。而移动浏览器甚至会顽固地拒绝调出屏幕键盘......
+
+### 手动差异化
+
+所以我们确实需要`contenteditable`，但是还有一个问题。React不支持对已启用`contenteditable`的元素的内容进行修补。这是有原因的：`contenteditable`基本上是告诉浏览器去玩吧。这就像一个没有规则的操场。
+
+React并不喜欢这样。它依靠虚拟DOM来决定它需要如何更新实际的DOM，但当浏览器可以在它不知情的情况下把地毯从它下面拉出来并更新实际的DOM时，这种方法就陷入了困境。这也是我们一开始就避免的原因。为了在更新我们的数据模型时能够保留用户的意图（OT算法的一个重要方面），最好是了解导致任何变化的互动。但是，如果你试图理解浏览器对DOM在内容可编辑元素中的变化，你最多只能是猜测。
+
+所以我们借鉴了React的玩法，实现我们自己的差异算法。但我们不是针对虚拟DOM进行差分，而是在`useLayoutEffect()`钩子函数中针对真实DOM进行差分和修补。这相对简单，因为我们的用例非常专业，而且它还有一个好处，如果真实DOM中发生任何意外（可能是由于浏览器扩展），我们的算法将简单地将视图恢复到我们基于数据模型的预期。
+
+### 杂项
+
+上述所有内容可能会让你对编辑器的工作原理有一个较高的认识，但魔鬼是在细节中的。下面是我们需要解决的一些小问题。
+
+- **支持Unicode**。每个人都喜欢的标准，但在工作中却很麻烦。幸运的是，Rust有优秀的[unicode_segmentation](https://crates.io/crates/unicode-segmentation)板块，对我们帮助很大。这帮助我们解决了一些问题，比如按字进行光标导航，以及确保光标能正确地跳过字母群。
+
+- **光标定位是很棘手的**，但我们发现最好的方法是使用浏览器的`Selection`对象，并通过这种方式设置一个（透明的）本地光标。然后我们使用`getBoundingClientRect()`来测量浏览器渲染光标的位置，然后我们就可以在那里定位我们自己的光标。
+
+- **组合事件**被浏览器用来组成带有重音的字符和处理拼音等输入。不要忘记处理这些。
+
+### 总结
+
+创建你自己的富文本编辑器是一项艰巨的任务，但只要有正确的架构和良好的规划，它肯定是可以做到的。如果你发现自己处于必须选择或开发一个富文本编辑器的位置，我们希望你能发现这篇文章的有用信息。
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
