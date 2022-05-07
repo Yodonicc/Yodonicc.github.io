@@ -1,0 +1,359 @@
+---
+layout: post
+title: "深入了解CSS中的object-fit和background-size——CSS图片尺寸控制&应用场景"
+date: 2022-05-07 06:02:20 -0000
+categories: frontend css
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：[Ahmad Shadeed](https://www.smashingmagazine.com/author/ahmad-shadeed/)
+>
+> 原文链接：[A Deep Dive Into object-fit And background-size In CSS](https://www.smashingmagazine.com/2021/10/object-fit-background-size-css/)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+
+摘要：在这篇文章中，我们将讨论`object-fit`和`background-size`是如何工作的，什么时候可以使用它们，为什么，以及一些实际的使用案例和建议。让我们深入了解一下。
+
+我们并不总是能够为一个HTML元素加载不同大小的图像。如果我们使用的宽度和高度与图像的长宽比不成正比，图像可能会被压缩或拉伸。这不是好事，它可以通过`img`元素的`object-fit`或使用`background-size`来解决。
+
+首先，我们来定义这个问题。考虑一下下图。
+
+<image id="img" src="/public/post18image1.jpeg" style="max-width: 730px;" >
+</image>
+
+一张好看的照片和一张被挤压的图片的对比
+
+### 为什么会发生这种情况？
+
+一张图片会有一个长宽比，浏览器会用这个图片来填充包含框。如果图像的长宽比与为其指定的宽度和高度不同，那么结果将是一个被挤压或拉伸的图像。
+
+我们在下图中看到了这一点。
+
+<image id="img" src="/public/post18image2.jpeg" style="max-width: 730px;" >
+</image>
+一张好看的照片和一张被拉伸的图像的比较
+
+图像的长宽比与包含它的box不同，图像会被拉长。
+
+### 解决办法
+
+当图像的长宽比与包含元素的宽度和高度不一致时，我们并不总是需要添加一个不同大小的图像。在深入研究CSS解决方案之前，我想向你展示一下我们以前在照片编辑应用程序中是如何做到这一点的。
+
+<image id="img" src="/public/post18image3.jpeg" style="max-width: 730px;" >
+</image>
+在遮罩中裁剪了顶部和底部边缘的图像的例子
+
+首先，我们会将图片垂直居中，然后在遮罩中剪裁。这就保留了图像的长宽比，防止它被挤压。
+
+现在我们明白了这是如何工作的，让我们来看看这在浏览器中是如何工作的。(剧透警告：这更容易！)
+
+
+
+### CSS `object-fit` #
+
+`object-fit`属性定义了被替换的元素（如`img`或`video`）的内容应如何调整大小以适应其容器。object-fit的默认值是`fill`，这可能导致图像被挤压或拉伸。
+
+让我们来看看可能的值。
+
+#### `object-fit`的可能值 #
+
+##### `object-fit: contain` #
+
+在这种情况下，图像的大小将被调整以适应其容器的长宽比。如果图像的长宽比与容器的长宽比不一致，它就会被“黑边化”。
+
+<image id="img" src="/public/post18image4.jpeg" style="max-width: 730px;" >
+</image>当使用`object-fit: contain`时，图像将被黑边化或相应调整大小。
+
+##### `object-fit: cover` #
+
+这里，图像也将被调整大小以适应其容器的长宽比，如果图像的长宽比与容器的长宽比不一致，那么它将被剪切以适应。
+
+<image id="img" src="/public/post18image5.jpeg" style="max-width: 730px;" >
+</image>
+
+当使用`object-fit: cover`时，图像将被剪裁以适应或相应地调整大小。
+
+##### `object-fit: fill `
+
+使用这个，图像将被调整大小以适应其容器的长宽比，如果图像的长宽比与容器的长宽比不一致，它将被挤压或拉伸。**我们不希望这样**。
+
+<image id="img" src="/public/post18image6.jpeg" style="max-width: 730px;" >
+</image>
+当使用`object-fit: fill`时，图像将被相应地挤压、拉伸或调整大小。
+
+##### `object-fit: none` #
+
+在这种情况下，图像根本不会被调整大小，既不会被拉伸也不会被挤压。它的作用与`cover`类似，但它不依赖于其容器的长宽比。
+
+<image id="img" src="/public/post18image7.jpeg" style="max-width: 730px;" >
+</image>
+当使用`object-fit: none`时，如果图像的尺寸不一样，它就不会被调整大小。
+
+除了`object-fit`，我们还有`object-position`属性，它负责在其容器中定位图像。
+
+#### `object-position` 的可能值
+
+`object-position`属性的作用类似于CSS的`background-position`属性。
+
+<image id="img" src="/public/post18image8.jpeg" style="max-width: 730px;" >
+</image>大多数情况下，使用默认值（例如，"center "或 "50% 50%")。
+
+当容器的长宽比在垂直方向上较大时，`top`和`bottom`关键字也会起作用。
+
+<image id="img" src="/public/post18image9.jpeg" style="max-width: 730px;" >
+</image>比较`object-position: top`（left）和`object-position: bottom`（right)。
+
+
+
+### CSS `background-size`
+
+对于`background-size`，第一个区别是我们要处理的是背景，而不是一个HTML（`img`)元素。
+
+#### `background-size`的可能值 #
+
+`background-size`的可能值是`auto`, `contain`, 和`cover`.
+
+##### `background-size: auto` #
+
+使用`auto`，图像将保持其默认大小。
+
+<image id="img" src="/public/post18image10.jpeg" style="max-width: 730px;" >
+</image>
+请记住，默认尺寸有时可能会导致图像模糊（如果它太小）。
+
+##### `background-size: cover` 
+
+在这里，图像将被调整大小以适应容器。如果长宽比不一样，那么图像将被屏蔽以适应。
+
+<image id="img" src="/public/post18image11.jpeg" style="max-width: 730px;" >
+</image>
+当使用`background-size: cover`时，请确保考虑图像的长宽比。
+
+##### `background-size: contain` 
+
+在这种情况下，图像将被调整大小以适应容器。如果长宽比不对，那么图像就会被黑边化，如下例所示。
+
+<image id="img" src="/public/post18image12.jpeg" style="max-width: 730px;" >
+</image>
+`background-size: contain` 调整图像的大小以适应容器。
+
+至于`background-position`，它类似于`object-position`的工作方式。唯一的区别是，`object-position`的默认位置与`background-position`的默认位置不同。
+
+
+
+
+### 什么时候不使用`object-fit`或`background-size`？
+
+如果元素或图像被赋予一个固定的高度，并应用了`background-size: cover`或`object-fit: cover`，那么图像就会有一个点太宽，从而失去重要的细节，可能会影响用户对图像的感知。
+
+考虑一下下面的例子，在这个例子中，图像被赋予了一个固定的高度。
+
+``````css
+.card__thumb {
+    height: 220px;
+}
+``````
+
+<image id="img" src="/public/post18image13.jpeg" style="max-width: 730px;" >
+</image>右边显示的图片太宽了，因为它有一个固定的高度，而卡片的容器太宽了。
+
+如果卡片的容器太宽，就会导致我们在右边看到的情况（图像太宽)。这是因为我们没有指定一个长宽比。
+
+对此，只有两种解决方法中的一种。第一个是使用[padding hack](https://alistapart.com/article/creating-intrinsic-ratios-for-video/)来创建一个内在的比例。
+
+``````css
+.card__thumb {
+    position: relative;
+    padding-bottom: 75%;
+    height: 0;
+}
+
+.card__thumb img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+``````
+
+第二个修复方法是使用新的宽高比CSS属性。使用它，我们可以做到以下几点。
+
+``````css
+.card__thumb {
+    position: relative;
+    padding-bottom: 75%;
+    height: 0;
+}
+
+.card__thumb img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+``````
+
+注意：我已经详细地写了关于长宽比属性的文章，如果你想了解它的话，请期待本系列的下一篇文章："让我们来学习CSS中的纵横比"。
+
+### 使用案例和实例 
+
+#### 用户头像 #
+
+`object-fit: cover`的一个完美的用例：封面是用户的头像。一个头像所允许的长宽比通常是方形的。将图像放在一个方形的容器中可能会使图像变形。
+
+<image id="img" src="/public/post18image14.jpeg" style="max-width: 730px;" >
+</image>
+一个没有`object-fit`的用户头像和有`object-fit: cover`的用户头像。
+
+``````css
+.c-avatar {
+    object-fit: cover;
+}
+``````
+
+#### LOGO 列表 #
+
+列出一个企业的客户是很重要的。我们经常会使用logo来达到这个目的。因为logo会有不同的大小，我们需要一种方法来调整它们的大小而不使它们变形。
+
+幸好，`object-fit: contain`是一个很好的解决方案。
+
+```css
+.logo__img {
+    width: 150px;
+    height: 80px;
+    object-fit: contain;
+}
+```
+
+<image id="img" src="/public/post18image15.jpeg" style="max-width: 730px;" >
+</image>使用`object-fit: contain`可以帮助我们调整客户的logo大小，而不会扭曲它们。
+
+#### 文章缩略图 
+
+这是一个非常常见的用例。文章缩略图的容器可能并不总是有一个具有相同长宽比的图像。这个问题首先应该由内容管理系统（CMS)来解决，但它并不总是如此。
+
+```css
+.article__thumb {
+    object-fit: cover;
+}
+```
+
+<image id="img" src="/public/post18image16.jpeg" style="max-width: 730px;" >
+</image>在`object-fit: cover`的帮助下，调整文章缩略图。
+
+#### 文本+背景图 #
+
+在这个用例中，决定是使用`img`元素还是CSS` background`，将取决于以下几点。
+
+- 图像是否重要？如果CSS因为某种原因被禁用，我们是否希望用户看到这个图像？
+- 或者图像的目的只是装饰性的？
+
+根据我们的回答，我们可以决定使用哪种功能。如果图像是**重要的**:
+
+<image id="img" src="/public/post18image17.jpeg" style="max-width: 730px;" >
+</image>
+让我们假设图像很重要，因为这是一个与食物有关的网站。 😉
+
+``````css
+<section class="hero">
+    <img class="hero__thumb" src="thumb.jpg" alt="" />
+</section>
+Copy
+.hero {
+    position: relative;
+}
+
+.hero__thumb {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;    
+}
+``````
+
+
+如果图像是**装饰性**的，我们可以用`background-image`：
+
+``````css
+.hero {
+    position: relative;
+    background-image: linear-gradient(to top, #a34242, rgba(0,0,0,0), url("thumb.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+``````
+
+在这种情况下，CSS比较短。确保放在图片上的任何文字都是可读的，并且是可访问的。
+
+#### 用`object-fit: contain` 给图片添加背景
+
+你知道你可以为`img`添加背景色吗？当我们使用`object-fit: contain`时，我们会从中受益。
+
+在下面的例子中，我们有一个图片的矩阵。当图像和容器的长宽比不同时，背景色就会出现。
+
+``````css
+img {
+    object-fit: contain;
+    background-color: #def4fd;
+}
+``````
+
+<image id="img" src="/public/post18image18.jpeg" style="max-width: 730px;" >
+</image>
+我们可以使用`object-fit: contain`来给图像添加背景色。
+
+#### `<video>`元素 
+
+你是否曾经需要一个`video`作为背景？如果是这样，那么你可能希望它占据其父本的全部宽度和高度。
+
+``````css
+.hero {
+    position: relative;
+    background-color: #def4fd;
+}
+
+.hero__video {
+    position: aboslute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+``````
+
+<image id="img" src="/public/post18image19.jpeg" style="max-width: 730px;" >
+</image>`video`元素的`object-fit`默认值是`contain`。正如你在这里看到的，视频并没有覆盖文本&背景图，尽管它的属性是：`position: absolute`*,* `width: 100%`*, and* `height: 100%`
+
+为了使它完全覆盖其父体的宽度和高度，我们需要覆盖默认的`object-fit`值。
+
+```css
+.hero__video {
+    /* other styles */
+    object-fit: cover;
+}
+```
+
+<image id="img" src="/public/post18image20.jpeg" style="max-width: 730px;" >
+</image>现在，视频覆盖了其父体的全部宽度和高度。
+
+### 总结 
+
+正如我们所看到的，`object-fit`和`background-size`对于处理不同的图像长宽比都非常有用。我们并不总是能够控制为每张图片设置完美的尺寸，而这正是这两个CSS特性的闪光点。
+
+友好地提醒一下在`img`元素和CSS background之间选择的可访问性问题。如果图像纯粹是装饰性的，那么就选择CSS背景。否则，`img`元素更合适。
+
+我希望你觉得这篇文章很有用。谢谢你的阅读。
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
