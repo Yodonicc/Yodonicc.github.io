@@ -1,0 +1,252 @@
+---
+layout: post
+title: "展望互联网的未来"
+date: 2022-05-09 06:02:20 -0000
+categories: frontend 
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：HAZEM OSAMA
+>
+> 原文链接：[The Future Of The Web](https://www.hazem.cool/blog/the-future-of-the-web)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+
+
+
+### 曾经的互联网
+
+曾几何时，网络并不像今天这样成为我们生活的重要组成部分，它主要用于查看天气、邮件、新闻、雅虎答案、下载MP3或玩Flash游戏。
+
+网络是静态的、单人的，好像印刷时代的一部分被带到了网络上。虽然我不得不说它有点[古怪和有趣](https://www.spacejam.com/1996/)。
+
+
+
+### 商业网络
+
+随着网络应用、社交媒体、视频流的兴起，以及向移动领域的转移，网络从一种实用工具转变为一种生活方式。
+
+一股黄金之泉喷涌而出，科技公司开始以数十亿计的资金汇入。而当有这么多的钱漂浮在空中时，强调乐趣和终端用户的隐私和最佳利益就不会真正在他们的优先名单上。
+
+因此，网站变得更加令人上瘾。公司开始创建自己的网站。就像每家公司和他们的狗都有一个登陆页面，如果你眯起眼睛，就会觉得他们都在使用相同的模板，标题都是 "自动化组织协作工作场所远程通信交付的一体化解决方案"，"用100倍的时间提高10倍的生产力！！"，或者 "厕所...重塑！" 。除了一些文字、风格和图像在这里和那里之外，很难发现有什么不同。这就像有人把整个互联网的创造力和乐趣都漂白了。
+
+网络变得太商业化，太可预测，太......无聊。
+
+
+
+### 事情正在发生变化
+
+> "存在着一个光明的未来，如果你向正确的方向眯起眼睛，你可以看到它在远处闪闪发光。"
+> ——杰西-雅各布斯，Safari Honeymoon
+
+网络正在发生变化，它正在变得更有活力，更有沉浸感，更有多人参与，事实上，如果你仔细观察，你会发现它已经这样了。
+
+
+
+### 桌面的死亡
+
+如果你看看你日常使用的应用程序，它们可能是Twitter、Facebook、Gmail、Zoom、YouTube、Slack、Discord、Microsoft Teams、Google Drive、Google sheets、Office 365或Notion等应用程序。
+
+你能猜到其中哪些不是网络应用吗？好吧，唯一一个没有基于网络技术的桌面客户端是Zoom，它也能在你的浏览器上工作。
+
+即使是微软的Office应用程序，即 "**事实上的** "桌面应用程序，其界面也是[在react中重写](https://react-etc.net/entry/microsoft-office-rewrite-to-react-js-nears-completion)的，这是一种基于网络的技术。
+
+
+
+### 专业的重型应用程序
+
+你可以说，但像Photoshop、After Effects、Final Cut Pro、Blender和Visual Studio这样的应用程序是桌面应用程序，它们太重太复杂了，不能放在网络上。
+
+但如果你还没有注意到，这些类型的应用程序已经在向网络转移。
+
+- Photoshop, Illustrator, Adobe XD → [Figma](https://www.figma.com/), [Framer](https://www.framer.com/) (有我见过的[最好的SaaS产品广告](https://www.youtube.com/watch?v=hAPxeoP8wn8)之一), [Photobea](https://www.photopea.com/), 和 [Avocode](https://avocode.com/)
+- After Effect → [Rive](https://rive.app/)
+- Blender → [Spline](https://spline.design/)
+- Microsoft Office → [Office 365](https://www.office.com/), [Google docs](https://www.google.com/docs/about/), [Google slides](https://www.google.com/slides/about/), [Google sheets](https://www.google.com/sheets/about/), 和[Notion](https://www.notion.so/)
+- Skype → [Slack](https://slack.com/), [Teams](https://www.microsoft.com/en-ww/microsoft-teams/group-chat-software), [Zoom](https://zoom.us/), 和[Discord](https://discord.com/)
+- Visual Studio & 其他 IDEs → [CodeSandBox](https://codesandbox.io/), [Github CodeSpaces](https://github.com/features/codespaces), [Glitch](https://glitch.com/), [Git Pod](https://www.gitpod.io/), 和[Next.js Live](https://nextjs.org/blog/next-11#nextjs-live-preview-release)
+- Unreal Engine, Unity → [Three.js](https://threejs.org/), [Babylon](https://www.babylonjs.com/), [Play Canvas](https://playcanvas.com/#!), 和[RogueEngine](https://rogueengine.io/)
+- AutoCad, Sketchup → [AutoCad Web](https://web.autocad.com/) 和[Sketchup Web](https://app.sketchup.com/app)
+- Audacity → [Soundation](https://soundation.com/)
+- VLC 媒体播放器 → [VLC.js](https://code.videolan.org/jbk/vlc.js)
+
+哎呀，你甚至可以[在网络上运行你个人的浏览器](https://www.mightyapp.com/)（有另一个很棒的[SaaS产品广告](https://www.youtube.com/watch?v=cxUN1dZ0Edk&feature=youtu.be)？）
+
+还有一个[windows paint克隆](https://jspaint.app/)，[windows 98](https://copy.sh/v86/?profile=windows98)和[windows XP](https://winxp.vercel.app/)都可以在你的浏览器上运行。
+
+如果你还没有注意到，亲爱的读者，传统的桌面应用程序已经在走向数字墓地的路上。
+
+
+
+### 手机离死神也并不遥远
+
+移动应用程序具有 "原生 "的感觉，它们可以住在你的主屏幕上，发送通知，可以访问相机、联系人、文件系统等，有流畅的动画和手势，这些都是你在普通的点击式网站上看不到的。
+
+当一个公司想支持移动时，他们不会创建一个移动友好的网络应用，他们会创建一个本地移动应用。为什么？因为网络无法获得与原生应用相同的API和功能，而且它通常被认为性能不佳，你很难实现跨浏览器的手势和动画，而且不会干扰设备的默认手势，显然你不能将网站提交到应用商店（或者你可以吗？）
+
+一些框架使你能够用网络技术编写跨平台的应用程序，如[React Native](https://reactnative.dev/)，它们大多能让你获得与本地应用程序相同的API和功能，尽管它们的性能较差。
+
+一些公司已经采用了React Native，如Facebook、Instagram、Discord、Tesla、Skype、Pinterest和Uber eats。
+
+但我相信在目前有更好的东西，有一种网络应用可以运行并感觉像原生应用，它们的名字是 "渐进式网络应用"。它们是可安装的，[可以访问API，如存储、相机、通知](https://whatwebcando.today/)等，可以即时更新（不像原生应用需要在应用商店构建），不必提交给应用商店，容易访问（URL的力量），并且通过像 [use-gestures](https://use-gesture.netlify.app/), [react-spring](https://react-spring.io/), 和 [framer motion](https://www.framer.com/motion/)这样的库，你可以轻松实现流畅的动画和手势（在手机上试试[Bottom Sheet](https://zuwji.csb.app/), [Multi-Gestures](https://rkgzi.csb.app/), [Slide Show](https://v364z.csb.app/), 和 [App Store Like Cards](https://ecgc2.csb.app/) 的demo）。
+
+最有名的例子可能是Twitter的PWA。
+
+谷歌游戏商店和微软商店已经允许将PWA提交到他们的市场上。
+
+让我们希望苹果能增加更多的支持，并尽快解除它在iOS上对PWA的一些限制🤞。
+
+随着时间的推移，我预测会有更多的公司转向PWA，我们会看到它们与本地应用程序并存，直到有一天PWA会成为一种标准（希望如此😁），然后我们会想，为什么我们要为每个平台多次构建相同的应用程序😲！这时，我们就会发现，PWA已经成为一种标准。
+
+
+
+### 沉浸式网络
+
+#### 网络正在变得强大
+
+你可能会想知道？网络不是很慢吗？Chrome占用了我所有的CPU和内存，而且网络确实不适合重度应用，但有了 [Web Assembly](https://webassembly.org/)，情况就不再是这样了。
+
+Web Assembly可以让你在网络上以接近机器码的速度运行C++、Rust、Go、Java等[多种语言](https://github.com/appcypher/awesome-wasm-langs)的编译代码。这将为网络上的新型应用打开大门，例如。
+
+- [Figma的渲染引擎](https://www.figma.com/blog/webassembly-cut-figmas-load-time-by-3x/)
+- [谷歌将C++代码从其桌面应用程序移植到网络上](https://web.dev/earth-webassembly/)
+- [Soundation的音频计算](https://soundation.com/station/soundation-is-the-first-online-music-production-software-to-implement-webassembly-threads-gains-over-70-performance-improvement/)
+- [谷歌的Squoosh图像压缩（即使是网络不支持的格式）](https://squoosh.app/)
+- [Google Sketchup 3D建模](https://madewithwebassembly.com/showcase/sketchup/)
+- [VLC媒体播放器被移植到网络上](https://madewithwebassembly.com/showcase/vlc/)
+- [Lichess国际象棋引擎分析](https://madewithwebassembly.com/showcase/lichess/)
+- [PSPDFKit](https://pspdfkit.com/blog/2017/webassembly-a-new-hope/) & [PDFTron](https://www.pdftron.com/blog/wasm/wasm-vs-pnacl/) PDF 渲染引擎
+- [TenserFlow现在支持网络装配](https://blog.tensorflow.org/2020/03/introducing-webassembly-backend-for-tensorflow-js.html)
+
+#### 3D网络
+
+网络在传统上是二维的，那是因为它主要用于分享文件，而不是用于 "应用"。
+
+但是，3D已经在网络中潜伏了一段时间，它不仅仅是出于纯粹的审美原因。
+
+这里有一些网络上的3D体验的例子。
+
+- [谷歌地球](https://earth.google.com/web/) (显然是 👀)
+- [美国宇航局火星2020模拟](https://eyes.nasa.gov/apps/mars2020/#/home)
+- [美国宇航局喷气推进实验室开源漫游器](https://opensourcerover.jpl.nasa.gov/#!/home)
+- [SpaceX国际空间站对接模拟器](https://iss-sim.spacex.com/)
+- [恒星浏览器实验](https://stars.chromeexperiments.com/)
+- [维基宇宙](http://wikiverse.io/)
+- [Zenly登陆页](https://zen.ly/)
+- [布鲁诺-西蒙作品集](https://bruno-simon.com/)
+- [Lusion网站](https://lusion.co/)
+- [纸巷子](https://paperplanes.world/)
+- [谷歌艺术与文化 - Blob Opera](https://artsandculture.google.com/experiment/blob-opera/AAHWrq360NcGbw)
+- [谷歌云基础设施](https://cloud.withgoogle.com/infrastructure/)
+
+#### XR体验
+
+VR和AR还没有成为主流，但它们将在网络上有自己的位置。
+
+[WebXR](https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API)是一个允许在网络上创建混合现实（VR和AR）体验的API，所以现在我们将能够创建可以在不同的头盔上使用的体验，而不仅仅是一个头盔。
+
+下面是一些WebXR体验的例子。
+
+- [Shopify 3D产品模型](https://www.shopify.com/3d)
+- [A-Painter：3D绘画](https://aframe.io/a-painter/)
+- [蜘蛛人VR体验](https://spiderman.webvr.link/)
+- [谷歌WebXR实验](https://experiments.withgoogle.com/collection/webxr)
+- [KonterBall: 乒乓球](https://konterball.com/)
+- [谷歌的Tonite舞蹈](https://tonite.dance/)
+- [月亮骑士](https://moonrider.xyz/)
+- [Hubs: 虚拟房间（Mozilla）](https://hubs.mozilla.com/)
+- [Plockle: 益智游戏](https://plockle.com/)
+
+
+
+#### 网络游戏时代的开始
+
+视频游戏一直都是在游戏机和PC上进行的。网络上只剩下了迷你的Flash游戏，当时网络还没有真正为视频游戏产业做好准备。
+
+但随着Web Assembly的出现，事情开始发生变化。现在你可以将用其他语言（如C++）编写的游戏直接移植到网络上。
+
+有了[WebGPU](https://web.dev/gpu/)，我们将看到网络3D引擎可以更直接地访问GPU，为网络游戏带来新的可能性。
+
+[Unity宣布它将支持Web Assembly](https://blog.unity.com/technology/webassembly-is-here)，而像 [Three.js](https://threejs.org/), [Babylon](https://www.babylonjs.com/), [Play Canvas](https://playcanvas.com/#!), 和 [RogueEngine](https://rogueengine.io/)这样的工具，使得网络上的游戏未来一片光明。
+
+下面是一些在网络上运行的游戏的例子。
+
+- [Unity: Angry Bots](https://beta.unity3d.com/jonas/AngryBots/)
+- [Doom 3 (通过Web Assembly移植)](https://wasm.continuation-labs.com/d3demo/)
+- [Heraclos](https://heraclosgame.com/)
+- [Ouigo - 弹球](http://letsplay.ouigo.com/)
+- [pmndrs - 赛车](https://racing.pmnd.rs/#)
+- [Classic Minecraft](https://classic.minecraft.net/)
+- [After The Flood](https://playcanv.as/p/44MRmJRU/)
+- [Trolli](https://trollideliciouslydarkescape.com/)
+- [HexGL - Racer Game](http://hexgl.bkcore.com/play/)
+- [Robostorm](https://robostorm.io/)
+- [Foosball World Cup](https://www.foosballworldcup18.com/)
+
+
+
+#### 为什么网络是游戏开发的好地方？
+
+网络是唯一一个向后兼容的平台，想象一下，创建一个游戏，可以一直运行到互联网的尽头！你可以向大众推出你的游戏，而不需要发行商或游戏商店从你辛苦开发的游戏中抽取30%的费用。
+
+你可以向大众推出你的游戏，而不需要出版商或游戏商店从你辛苦赚来的收入中抽取30%。
+
+你可以在任何设备上技术性地运行你的游戏，不需要将你的游戏移植到不同的控制台和架构上，PC游戏将不再是只有windows的专利。
+
+易于访问，任何人都可以通过一个URL访问你的游戏，不需要下载数千兆字节的数据来测试一个游戏。
+
+你可以立即更新你的游戏，而不用让你的用户等待下载最新的更新。
+
+你可以通过代码分割和懒惰加载资产来拥抱网络流媒体功能，用户可以立即玩和测试你的游戏（理论上）。
+
+想象一下，当想和朋友玩一个游戏时，你不会看到哪个朋友和你有相同的控制台/PC（因为大多数游戏不是跨平台的），或者等待你们两个人下载整个游戏或下载最新的10GB更新！你需要做的只是分享一个游戏会话的URL，你就可以了，游戏门槛将非常低，基本上不存在了。
+
+
+
+### 去中心化 🕸，巨头杀手
+
+大部分互联网被4-5家公司垄断，也就是FAANG（Facebook、亚马逊、苹果、Netflix和谷歌）。
+
+他们把你的数据抽到他们的数据中心，他们可以控制哪些内容被放在他们的平台上，哪些不被放在他们的平台上，他们可以通过策划你看到的和不看到的内容来影响你的决定，他们可以在你搜索他们的竞争对手时把他们的产品放在上面，他们可以通过把你的产品放在他们的市场上从你的收入中抽取一大笔钱，他们可以把你的数据作为人质，不让你轻易把它输出到其他应用程序，把你锁在他们的泡沫中。
+
+因此，一个公司控制像互联网这样重要的东西，我们可以说是相当令人担忧😅。
+
+那么我们该怎么办呢？我们是否注定要遵循FAANGs的意愿？
+
+对此，我想说的是，想象一个网络，你的数据是真正属于你的，你可以把它从一个应用程序转移到另一个，你不需要把你的电子邮件、密码、电话号码、地址、社会身份或你的照片给一个应用程序，只是需要你的虚拟钥匙。想象一下，互联网不是由几个肥胖的数据饥渴巨头管理，而是由我们所有人管理。想象一下真正的匿名，你选择公开什么，保留什么，不再有中间人。
+
+这就是去中心化的应用程序希望做到的。你可能已经从比特币中了解到了它们，但它比这更大，我们只是看到了它可能的早期一瞥。如果有一件事能将互联网从FAANGs的控制下拯救出来，那就是去中心化的应用程序，它将最终杀死科技巨头。
+
+
+
+### 为什么互联网能基业长青
+
+网络永远不会消亡（除非我们都被核弹击中💣），这是因为网络是我们的延伸。
+
+与封闭的系统不同，网络是开放的，可以从所有设备上访问，不是由一个巨大的公司管理，总是向后兼容，在你和你想连接的人之间没有中间人，而且它在不断发展。
+
+在开发者的生态系统中一直有一个 "**一次编写，到处运行** "的梦想，但他们没有意识到，这个梦想一直在他们的鼻子底下，网络一直是跨平台的。
+
+
+
+### 封闭式系统要么拥抱网络（作为一等公民），要么就会落伍。
+
+我有一个理论，所有的封闭系统最终都会死亡。他们唯一能做的就是延长他们的存在，为什么这么说？虽然他们可以继续给他们的围墙花园浇水，但总有一天，他们生长的天气会不一样，所以叶子会落下，苹果会腐烂，花园会变成一个博物馆，一个历史遗迹，一个对过去的提醒。
+
+为了生存，他们将不得不打开他们的花园，拥抱四季，而即将到来的季节都是网络。
+
+
+
+### 最终的操作系统
+
+网络将是最终的操作系统，连接所有，永远进化。
+
+将来有一天，有人指着他们的电脑设备，他们不会指着他们的笔记本电脑，或他们的手机，或他们的眼镜，甚至他们的微波炉，他们会指着天空说："处处都有它......它无处不在！"
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
