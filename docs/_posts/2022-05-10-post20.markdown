@@ -1,0 +1,231 @@
+---
+layout: post
+title: "Fonts最佳实践"
+date: 2022-05-10 06:02:20 -0000
+categories: frontend 
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：[Katie Hempenius](https://web.dev/authors/katiehempenius/)
+>
+> 原文链接：[Best practices for fonts](https://web.dev/font-best-practices/)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> 为网站体验核心指标优化网页字体。
+
+这篇文章讨论了字体的性能最佳实践。网络字体影响性能的方式有很多：
+
+- **延迟的文本渲染**。如果网络字体没有加载，浏览器通常会延迟文本的渲染。在许多情况下，这将会延迟 ["首次内容绘制"（FCP）](https://web.dev/fcp)。在某些情况下，这将延迟[最大内容的绘制（LCP）](https://web.dev/lcp)。
+- **布局偏移**。字体互换的做法有可能[导致布局偏移](https://web.dev/debug-layout-shifts/#identifying-the-cause-of-a-layout-shift)。当一种网页字体和它的后备字体在页面上占用不同的空间时，就会发生这些布局偏移。
+
+本文分为三个部分：字体加载、字体交付和字体呈现。每一节都解释了字体生命周期的那个特定方面是如何工作的，并提供了相应的最佳实践。
+
+### 字体加载 #
+
+在深入探讨字体加载的最佳实践之前，重要的是要了解[`@font-face`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/@font-face)是如何工作的，以及它是如何影响字体加载的。
+
+[`@font-face`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/@font-face)声明是使用任何网络字体的一个重要部分。至少，它声明了用来指代字体的名称，并指明了相应字体文件的位置。
+
+``````css
+@font-face {
+  font-family: "Open Sans";
+  src: url("/fonts/OpenSans-Regular-webfont.woff2") format("woff2");
+}
+``````
+
+一个常见的误解是，当遇到`@font-face`声明时，就会请求一种字体——事实并非如此。就其本身而言，`@font-face`声明并不触发字体下载。相反，只有当一个字体被页面上使用的样式所引用时，才会被下载。例如，像这样。
+
+``````css
+@font-face {
+  font-family: "Open Sans";
+  src: url("/fonts/OpenSans-Regular-webfont.woff2") format("woff2");
+}
+
+h1 {
+  font-family: "Open Sans"
+}
+``````
+
+换句话说，在上面的例子中，只有当页面包含一个`<h1>`元素时，`Open Sans`才会被下载。
+
+> 加载字体的其他方法是[预加载](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Preloading_content)资源提示和 [Font Loading API](https://web.dev/optimize-webfont-loading/#the-font-loading-api)。
+
+因此，在考虑字体优化时，重要的是要把样式表和字体文件本身一样考虑在内。改变样式表的内容或交付方式会对字体的到达时间产生重大影响。同样地，删除未使用的CSS和拆分样式表可以减少页面加载的字体数量。
+
+#### 最佳做法 #
+
+字体是典型的重要资源，因为没有它们，用户可能就无法查看页面内容。因此，字体加载的最佳实践通常侧重于确保字体尽可能早地被加载。对于从第三方网站加载的字体应特别注意，因为下载这些字体文件需要单独的连接设置。
+
+如果您不确定您页面的字体是否被及时请求，请检查Chrome DevTools中**网络面板**中的 "**计时** "选项卡，以了解更多信息。
+
+<image id="img" src="/public/post20image1.png" style="max-width: 730px;" >
+</image>
+
+#### 内联字体声明 #
+
+大多数网站都可以在主文档的`<head>`中内联字体声明和其他关键样式，而不是将其纳入外部样式表。这可以让浏览器更快发现字体声明，因为浏览器不需要等待外部样式表的下载。
+
+``````html
+<head>
+  <style>
+    @font-face {
+        font-family: "Open Sans";
+        src: url("/fonts/OpenSans-Regular-webfont.woff2") format("woff2");
+    }
+
+    body {
+        font-family: "Open Sans";
+
+    }
+  </style>
+</head>
+``````
+
+> 不建议嵌入字体文件本身。嵌入像字体这样的大型资源很可能会延迟主文件的交付，并随之延迟对其他资源的发现。
+
+#### 预先连接到关键的第三方源头 #
+
+如果你的网站从第三方网站加载字体，强烈建议你使用[预连接](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Link_types/preconnect)资源提示来建立与第三方来源的早期连接。资源提示应该放在文档的`<head>`中。下面的资源提示为加载字体样式表设置了一个连接。
+
+``````html
+<head>
+  <link rel="preconnect" href="https://fonts.com">
+</head>
+``````
+
+要预先连接用于下载字体文件的连接，请添加一个使用`crossorigin`属性的单独的预连接资源提示。与样式表不同，字体文件必须通过一个[CORS连接](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS#what_requests_use_cors)来发送。
+
+``````html
+<head>
+  <link rel="preconnect" href="https://fonts.com">
+  <link rel="preconnect" href="https://fonts.com" crossorigin>
+</head>
+``````
+
+当使用预连接资源提示时，请记住，一个字体提供者可能会从不同的源头来提供样式表和字体。例如，预连接资源提示是这样用于Google字体的。
+
+``````html
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+``````
+
+> [Google Fonts](https://fonts.google.com/)提供了通过`<link>`标签或`@import`语句来加载字体的选项。`<link>`代码片段包括一个预连接资源提示，因此可能会比使用`@import`版本的样式表交付速度更快。这些`<link>`标签应该尽可能早地放在文档中。
+
+#### 避免使用preload来加载字体 #
+
+一般来说，应该避免使用[preload](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Preloading_content)资源提示来加载字体。尽管预加载在使字体在页面加载过程的早期被发现方面非常有效，但这是以占用浏览器资源来加载其他资源为代价的。
+
+在大多数情况下，内联字体声明和调整样式表是一种更有效的方法。这些调整更接近于解决后期发现的字体的根本原因--而不仅仅是提供一个变通办法。
+
+此外，使用预加载作为字体加载策略也应该谨慎使用，因为它绕过了浏览器的一些内置内容协商策略。例如，预加载忽略了`unicode-range`的声明，如果谨慎使用，应该只用于加载单一的字体格式。
+
+
+
+### 字体交付
+
+更快的字体交付可以产生更快的文本渲染。此外，如果字体传递得足够早，这可以帮助消除因字体交换而导致的布局偏移。
+
+#### 最佳做法 #
+
+##### 使用自我托管的字体 #
+
+从纸面上看，使用自我托管的字体应该能提供更好的性能，因为它消除了第三方的连接设置。然而，在实践中，这两种选择之间的性能差异并不明显：例如，[《网络年鉴》](https://almanac.httparchive.org/en/2020/fonts#fig-7)发现，使用第三方字体的网站比使用第一方字体的网站的渲染速度更快。
+
+如果你正在考虑使用自我托管的字体，请确认你的网站正在使用[内容交付网络（CDN）](https://web.dev/content-delivery-networks/)和[HTTP/2](https://web.dev/content-delivery-networks/#http2-and-http3)。如果不使用这些技术，自我托管的字体就更不可能提供更好的性能。欲了解更多信息，请参阅[内容交付网络](https://web.dev/content-delivery-networks/)。
+
+> 如果你不确定使用自我托管的字体是否会带来更好的性能，可以尝试从你自己的服务器上提供一个字体文件，并将其传输时间（包括连接设置）与第三方字体的传输时间进行比较。如果你的服务器很慢，没有使用CDN，或者没有使用HTTP/2，那么自营字体的性能就不可能更好。
+
+如果你使用自己的字体，建议你也应用一些第三方字体供应商通常自动提供的字体文件优化——例如，字体子集和WOFF2压缩。应用这些优化所需的工作量将在一定程度上取决于你的网站所支持的语言。特别要注意的是，为[中日韩语言](https://en.wikipedia.org/wiki/CJK_characters)优化字体可能特别具有挑战性。
+
+**Unicode范围和字体子集**：`@font-face`经常与 [`unicode-range`](https://developer.mozilla.org/docs/Web/CSS/@font-face/unicode-range) 描述符一起使用。`unicode-range`通知浏览器一个字体可以用于哪些字符。
+
+``````css
+@font-face {
+    font-family: "Open Sans";
+    src: url("/fonts/OpenSans-Regular-webfont.woff2") format("woff2");
+    unicode-range: U+0025-00FF;
+}
+``````
+
+如果页面包含一个或多个与unicode范围相匹配的字符，就会下载一个字体文件。`unicode-range`通常用于根据页面内容使用的语言提供不同的字体文件。
+
+`unicode-range`经常与子集技术一起使用。一个子集字体包括原始字体文件中所包含的一小部分[字形](https://en.wikipedia.org/wiki/Glyph)（即字符）。例如，一个网站可能不会向所有用户提供所有的字符，而是为拉丁文和西里尔文字符生成单独的子集字体。每种字体的字形数量有很大的不同。拉丁文字体的字形数量通常在100到1000个之间；[中日韩字体](https://en.wikipedia.org/wiki/CJK_characters)可能有超过10000个字符。移除未使用的字形可以大大减少字体的文件大小。
+
+用于生成字体子集的工具包括 [subfont](https://github.com/Munter/subfont) 和 [glyphanger](https://github.com/zachleat/glyphhanger)。
+
+关于Google Fonts如何实现字体子集的信息，请看这个[介绍](https://www.unicodeconference.org/presentations-42/S5T3-Sheeter.pdf) 。关于Google Fonts的API子集，请看这个 [repo](https://github.com/googlefonts/gftools/tree/main/Lib/gftools/encodings)。
+
+**WOFF2**：在现代字体中，[WOFF2](https://www.w3.org/TR/WOFF2/) 是最新的，有最广泛的浏览器支持，并且提供了最好的压缩。因为它使用了Brotli，WOFF2的压缩效果比WOFF好30%。
+
+#### 使用更少的网络字体
+
+交付速度最快的字体是不需要网络请求的字体。系统字体和可变字体是有可能减少你网站上使用的网络字体数量的两种方法。
+
+**系统字体**是用户设备的用户界面所使用的默认字体。系统字体通常因操作系统和版本而异。因为字体已经安装，所以不需要下载字体。系统字体对正文的效果特别好。
+
+要在你的CSS中使用系统字体，请将`system-ui`列为font-family。
+
+``````css
+font-family: "system-ui" //译者注：这里加引号是因为发文平台识别为嵌入攻击，实际不用引号
+``````
+
+[可变字体](font-family: system-ui)背后的理念是，一个单一的可变字体可以用来替代多个字体文件。可变字体的工作方式是定义一个 "默认 "的字体样式，并提供操作字体的 ["轴"](https://web.dev/variable-fonts/#axes-definitions)。例如，一个带有 `Weight`轴的可变字体可以用来实现以前需要为浅色、普通、粗体和特粗的字体分开的字体。
+
+> 我们经常把 "Times New Roman "和 "Helvetica "称为字体。然而，从技术上讲，这些是字体家族。一个字体家族是由样式组成的，这些样式是字体的特殊变化（例如，浅色、中色或粗斜体）。一个字体文件包含一个单一的样式，除非它是一个可变字体。字体是基础设计，它可以表现为数字字体——以及物理字体，就像雕刻的木块或金属。
+
+并非所有人都能从改用可变字体中获益。[可变字体](font-family: system-ui)包含许多样式，因此通常比只包含一种样式的单个非可变字体的文件大小更大。那些使用（并且需要使用）各种字体样式和重量的网站，将从使用可变字体中看到最大的改进。
+
+### 字体渲染
+
+当面对尚未加载的网络字体时，浏览器会面临一个两难的选择：它应该暂缓渲染文本，直到网络字体到达为止？或者，在网络字体到达之前，它应该用一种后备字体来渲染文本？
+
+不同的浏览器对这种情况的处理方式不同。默认情况下，如果相关的网络字体没有加载，基于Chromium的浏览器和Firefox浏览器将阻止文本渲染长达3秒；Safari浏览器将无限期地阻止文本渲染。
+
+这种行为可以通过使用`font-display`属性进行配置。这种选择会产生重大影响：`font-display`有可能影响LCP、FCP和布局的稳定性。
+
+#### 最佳做法 #
+
+##### 选择一个合适的字体显示策略 #
+
+[`font-display`](https://developer.mozilla.org/docs/Web/CSS/@font-face/font-display)告诉浏览器，当相关的网络字体没有加载时，它应该如何进行文本渲染。它是根据每个font-face定义的。
+
+``````css
+@font-face {
+  font-family: Roboto, Sans-Serif
+  src: url(/fonts/roboto.woff) format('woff'),
+  font-display: swap;
+}
+``````
+
+[`font-display`](https://developer.mozilla.org/docs/Web/CSS/@font-face/font-display) 有五个可能的值：
+
+<image id="img" src="/public/post20image2.png" style="max-width: 730px;" >
+</image>
+
+- **阻塞时期**。阻塞时期从浏览器请求网络字体时开始。在阻断期内，如果网络字体不可用，该字体将以不可见的回退字体呈现，因此用户不会看到文本。如果该字体在封锁期结束时不可用，它将以后备字体呈现。
+- **交换期**。交换期是在阻塞时期之后。如果网络字体在交换期内可用，它将被 "替换 "进来。
+
+#### 建议 #
+
+`font-display`策略反映了关于性能和美学之间的权衡的不同观点。对于大多数网站来说，这两种策略将是最适用的。
+
+- 如果**性能是首要任务**。使用 `font-display: optional`。这是最 "高效 "的方法：文本渲染的延迟时间不超过100ms，而且可以保证不会出现与字体交换有关的布局变化。
+
+- 如果用网络字体**显示文本是首要任务**。使用`font-display: swap`，但要确保足够早地提供字体，以免引起布局偏移。
+
+> `font-display: auto`、`font-display: block`、`font-display: swap`和`font-display: fallback`都有可能在字体交换时引起布局偏移。然而，在这些方法中，`font-display: swap`会使文本渲染延迟最少。因此，在文本最终被渲染成网络字体非常重要的情况下，它是首选方法。
+
+还要记住，这两种方法可以结合起来：例如，对于品牌和其他视觉上与众不同的页面元素，使用`font-display: swap`；对于正文中使用的字体，使用`font-display: optional`。
+
+> 对传统网页字体行之有效的`font-display`策略对图标字体的效果并不理想。图标字体的后备字体通常看起来与图标字体明显不同，其字符可能传达出完全不同的含义。因此，图标字体更有可能导致显著的布局变化。此外，使用后备字体可能并不实际。如果可能的话，最好用SVG代替图标字体（这对可访问性也有好处）。流行的图标字体的较新版本通常支持SVG。关于切换到SVG的更多信息，请参阅[Font Awesome](https://fontawesome.com/v5.15/how-to-use/on-the-web/advanced/svg-sprites) 和 [Material Icons](https://google.github.io/material-design-icons/#svg)。
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
