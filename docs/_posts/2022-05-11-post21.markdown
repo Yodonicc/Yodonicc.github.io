@@ -1,0 +1,360 @@
+---
+layout: post
+title: "你不知道的HTML"
+date: 2022-05-11 06:02:20 -0000
+categories: frontend 
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：[Louis Lazaris](https://www.smashingmagazine.com/author/louis-lazaris/)
+>
+> 原文链接：[Those HTML Attributes You Never Use](https://www.smashingmagazine.com/2022/03/html-attributes-you-never-use/)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> 在这篇文章中，Louis Lazaris 描述并演示了一些有趣的 HTML 属性，您可能听说过也可能没有听说过，并且可能会发现它们非常有用，请尝试在您的项目中开始使用。
+
+**那些你从不使用的 HTML 属性——前端奇技淫巧**
+
+一月份，麦迪逊卡纳[问她的推特粉丝](https://twitter.com/ImpressiveWebs/status/1478145243333763076)：
+
+> 今年你很想学习或更深入地学习哪些语言/技术？
+>
+> 我的：typescript、next.js、react、graphql、solidity、node
+>
+> \- 麦迪逊卡纳 (@Madisonkanna) 
+>
+> 2022 年 1 月 3 日
+
+我的答案很简单：[HTML](https://twitter.com/ImpressiveWebs/status/1478145243333763076)。而且我一点也没有讽刺或嘲弄。当然，我非常清楚在哪些情况下使用哪些标签，以及如何使我的 HTML 大部分具有语义性和可访问性。
+
+但是我确信我已经忘记了一大堆较少使用的属性，并且可能有一大堆我甚至不知道其存在的属性。这篇文章是我研究的结果，我希望你会在接下来的几个月里构建 HTML 页面的时候，发现其中的一些对你有用。
+
+
+
+## 虚拟键盘的`enterkeyhint`属性
+
+该`enterkeyhint`属性是一个全局属性，可应用于那些将`contenteditable`设置为`true`的表单控件或元素。此属性可帮助使用虚拟屏幕键盘的移动设备上的用户。
+
+```html
+<input type="text" enterkeyhint="done">
+```
+
+`enterkeyhint`接受七个可能值之一，这些值将确定用户在他的“输入”键上看到的内容：
+
+- `enter`,
+- `done`,
+- `go`,
+- `next`,
+- `previous`,
+- `search`,
+- `send`.
+
+您可以看到这些“提示”如何对用户有用。用户是否正在执行一系列操作？他们在提交信息吗？他们在保存设置吗？根据他们正在做什么，您可以自定义提示以匹配您的应用程序的需求。
+
+您可以通过在移动设备上访问下面的 CodePen 演示来尝试这个。
+
+<image id="img" src="/public/post21image1.png" style="max-width: 730px;" >
+</image>
+
+请参阅[Louis Lazaris](https://codepen.io/impressivewebs) 使用 enterkeyhint 属性 [forked](https://codepen.io/smashingmag/pen/bGadMyz)的CodePen 。
+
+在我的 iOS 设备上，回车键的文本会随着键的颜色而变化，具体取决于值，如下面的屏幕截图所示。这可能会有所不同，具体取决于用户的设备。
+
+[![enterkeyhint - 完成](https://res.cloudinary.com/indysigner/image/fetch/f_auto,q_80/w_400/https://cloud.netlifyusercontent.com/assets/344dbf88-fdf9-42bb-adb4-46f01eedd629/e5b94737-9111-4dc6-a2da-474ea6d57ecf/1-html-attributes-you-never-use.png)](https://cloud.netlifyusercontent.com/assets/344dbf88-fdf9-42bb-adb4-46f01eedd629/e5b94737-9111-4dc6-a2da-474ea6d57ecf/1-html-attributes-you-never-use.png)
+
+
+
+[![enterkeyhint - 下一步](https://res.cloudinary.com/indysigner/image/fetch/f_auto,q_80/w_400/https://cloud.netlifyusercontent.com/assets/344dbf88-fdf9-42bb-adb4-46f01eedd629/b2609d36-4678-4278-b195-d92954ff5021/2-html-attributes-you-never-use.png)](https://cloud.netlifyusercontent.com/assets/344dbf88-fdf9-42bb-adb4-46f01eedd629/b2609d36-4678-4278-b195-d92954ff5021/2-html-attributes-you-never-use.png)
+
+只是强调一下，这个属性不接受自定义值；该值需要是上面显示的七个之一。无法识别的值将默认为输入键的设备默认文本。
+
+
+
+## 样式表上的`title`属性 
+
+在为本文进行研究时，这对我来说是全新的，可能是此列表中最有趣的一个。作为一些背景知识，如果您不知道，Firefox 有一个选项可让您选择查看页面时要使用的样式表。通常，此功能显示两个选项：“基本页面样式”和“无样式”，如下图所示在我的 Windows 机器上。
+
+[![Firefox 菜单样式](https://res.cloudinary.com/indysigner/image/fetch/f_auto,q_80/w_400/https://cloud.netlifyusercontent.com/assets/344dbf88-fdf9-42bb-adb4-46f01eedd629/bd02ce55-1048-437a-886a-d8e55cfa8984/3-html-attributes-you-never-use.png)](https://cloud.netlifyusercontent.com/assets/344dbf88-fdf9-42bb-adb4-46f01eedd629/bd02ce55-1048-437a-886a-d8e55cfa8984/3-html-attributes-you-never-use.png)（[大图预览](https://cloud.netlifyusercontent.com/assets/344dbf88-fdf9-42bb-adb4-46f01eedd629/bd02ce55-1048-437a-886a-d8e55cfa8984/3-html-attributes-you-never-use.png)）
+
+这使您可以快速测试禁用样式时页面的外观，还允许您使用任何备用样式表查看页面。
+
+备用样式表功能通过两个属性启用：`title`属性和`rel=alternate`应用于`<link>`元素，如下面的代码所示：
+
+```html
+<link href="main.css" rel="stylesheet" title="Default">
+<link href="contrast.css" rel="alternate stylesheet" title="High Contrast">
+<link href="readable.css" rel="alternate stylesheet" title="Readable">
+```
+
+在这种情况下，我的“默认”样式将自动应用，但仅当我使用 Firefox 的“页面样式”选项选择它们时，备用样式表才会应用。您可以通过使用 Firefox 或其他兼容浏览器访问以下 CodePen 来尝试上述示例：
+
+<image id="img" src="/public/post21image2.png" style="max-width: 730px;" >
+</image>
+[请参阅Louis Lazaris](https://codepen.io/impressivewebs)的 [Alternate Stylesheets Using rel title Attributes [forked](https://codepen.io/smashingmag/pen/ExojRgm)。
+
+下面的屏幕截图显示了 Firefox 中的样式表选项：
+
+[![Firefox 菜单样式](https://res.cloudinary.com/indysigner/image/fetch/f_auto,q_80/w_400/https://cloud.netlifyusercontent.com/assets/344dbf88-fdf9-42bb-adb4-46f01eedd629/94d8859d-dfea-4f3c-8d31-0b8cf65c0c31/4-html-attributes-you-never-use.png)](https://cloud.netlifyusercontent.com/assets/344dbf88-fdf9-42bb-adb4-46f01eedd629/94d8859d-dfea-4f3c-8d31-0b8cf65c0c31/4-html-attributes-you-never-use.png)（[大图预览](https://cloud.netlifyusercontent.com/assets/344dbf88-fdf9-42bb-adb4-46f01eedd629/94d8859d-dfea-4f3c-8d31-0b8cf65c0c31/4-html-attributes-you-never-use.png)）
+
+如前所述，此功能在 Firefox 中有效，但我无法让它在任何基于 Chromium 的浏览器中工作。[MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/Alternative_style_sheets)关于备用样式表的文章说它可以在其他浏览器中使用扩展启用，但我找不到可以执行此操作的活动扩展。
+
+## `<blockquote>`和`<q>`元素的`cite`属性
+
+我敢肯定你`<blockquote>`经常使用这个元素。您可以在没有属性的情况下直接使用它，但您也可以选择使用该`cite`属性。这是一个引用描述使用`cite`on的 MDN 文章的示例`<blockquote>`：
+
+```html
+<blockquote cite="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/blockquote#attr-cite">
+      A URL that designates a source document or message for the information quoted. This attribute is intended to point to information explaining the context or the reference for the quote.
+</blockquote>
+```
+
+由于我上面的`<blockquote>`解释了MDN 文章中的`cite`是怎样工作的，因此我将指向页面的 URL 设置为`cite`值。
+
+您可以看到这是多么有用，因为它将引用和引用的来源包装在一个元素中。[但请注意HTML 规范中的](https://html.spec.whatwg.org/multipage/grouping-content.html#attr-blockquote-cite)进一步解释：
+
+> 用户代理可能允许用户关注此类引用链接，但它们主要用于私人用途（例如，通过服务器端脚本收集有关站点使用引用的统计信息），而不是供读者使用。
+
+当然，相同的概念也适用于用于内联引用`<q>`元素上的`cite`。
+
+
+
+## 自定义有序列表的属性 [#](https://www.smashingmagazine.com/2022/03/html-attributes-you-never-use/#attributes-for-custom-ordered-lists)
+
+`<ol>`经常使用使用该元素的有序列表。一些鲜为人知的功能允许您自定义出现在此类列表中的编号行为：
+
+- `reversed`属性，以相反的顺序对项目进行编号（从高到低，而不是默认的从低到高）；
+- `start`属性，定义从哪个数字开始；
+- `type`属性，定义是使用数字、字母还是罗马数字；
+- `value`属性，用于在特定列表项上指定自定义编号。
+
+如您所见，使用纯 HTML 的有序列表比您通常习惯的要灵活得多。
+
+该`reversed`属性是一个有趣的属性，因为它实际上并没有反转列表本身的内容；它只会反转每个列表项旁边的数字。
+
+```html
+<ol reversed>
+    <li>List item...</li>
+    <li>List item...</li>
+    <li>List item...</li>
+</ol>
+```
+
+下面的 CodePen 演示添加了一些 JavaScript，因此您可以交互地切换`reversed`属性。
+
+<image id="img" src="/public/post21image3.png" style="max-width: 730px;" >
+</image>
+[请参阅Louis Lazaris](https://codepen.io/impressivewebs)的Reverse Ordered Lists with HTML [forked](https://codepen.io/smashingmag/pen/jOYPKxW)。
+
+请注意，列表本身保持不变，但数字会发生变化。如果您正在寻找一种反转内容的方法，请记住这一点。这是您可以使用 JavaScript、CSS 或直接在 HTML 源代码中执行的操作。
+
+上面，我还提到了其他三个属性。让我们将它们合并到列表中，看看如何使用它们：
+
+```html
+<ol reversed start="20" type="1">
+    <li>Typee: A Peep at Polynesian Life (1846)</li>
+    <li>Omoo: A Narrative of Adventures in the South Seas (1847)</li>
+    <li>Mardi: and a Voyage Thither (1849)</li>
+    <li>Redburn: His First Voyage (1849)</li>
+    <li value="100">White-Jacket; or, The World in a Man-of-War (1850)</li>
+    <li>Moby-Dick; or, The Whale (1851)</li>
+    <li>Pierre; or, The Ambiguities (1852)</li>
+    <li>Isle of the Cross (1853 unpublished, and now lost)</li>
+</ol>
+```
+
+请注意，已添加的`type`和`start`属性以及单个列表项上的`value`属性。该`type`属性接受表示编号类型的五个单字符值（`a`、`A`、`i`、`I`、`1` ）之一。
+
+使用以下交互式演示进行尝试：
+
+<image id="img" src="/public/post21image4.png" style="max-width: 730px;" >
+</image>
+[请参阅Louis Lazaris的](https://codepen.io/impressivewebs)[带有 start、type 和 value 属性 Reverse Ordered Lists [forked](https://codepen.io/smashingmag/pen/RwxPqgN) 。
+
+使用单选按钮选择该`type`属性的五个值之一。然后尝试使用`Toggle Reversed`按钮反转列表。如您所见，除了有序列表的默认行为之外，还有很多可能性！
+
+## `<a>`元素的`download`属性
+
+网络上的链接无处不在，拥有一个使链接更加强大的属性总是很好的。该`download`属性是几年前添加到规范中的，它允许您指定当单击链接时，应该下载而不是访问它。
+
+```html
+<a href="/example.pdf" download>Download File</a>
+```
+
+如果没有值，该`download`属性会强制下载链接页面。或者，您可以提供一个值，浏览器将其用作下载资源的建议文件名。
+
+```html
+<a href="/example.pdf" download="my-download.pdf">Download File</a>
+```
+
+作为涉及此属性的额外技巧，您可以将此功能与一些 JavaScript 结合起来，为用户创建一种下载他们自己创建的内容的方式。[我之前在这篇文章中](https://www.codeinwp.com/snippets/make-a-download-this-as-html-link/)介绍了一点，您可以使用下面的演示来尝试一下。
+
+<image id="img" src="/public/post21image5.png" style="max-width: 730px;" >
+</image>
+查看[Louis Lazaris](https://codepen.io/impressivewebs) 结合数据 URI + JavaScript 的下载属性，让用户下载的自定义 HTML [forked](https://codepen.io/smashingmag/pen/abEOQyQ) 。
+
+## `<img>`元素的`decoding`属性
+
+在研究这篇文章时，这对我来说是另一篇全新的文章——而且在规范中似乎相当新。将`decoding`属性添加到图像元素可为浏览器提供图像解码提示。
+
+```html
+<img src="/images/example.png" alt="Example" decoding="async">
+```
+
+此属性类似于`async`在脚本上使用该属性。加载图像所需的时间不会改变，但其“解码”的方式（因此其内容在视口中变得可见）由`decoding`属性决定。
+
+值为：
+
+- `sync`
+  同步解码图像，一般浏览器都是这样做的。
+- `async`
+  异步解码图像以避免延迟其他内容的呈现。
+- `auto`
+  默认允许浏览器使用自己的内置解码方法。
+
+如果您对解码图像的概念感到好奇，该规范有[一个很好的解释](https://html.spec.whatwg.org/multipage/images.html#decoding-images)，并不难理解。
+
+
+
+## `<iframe>`元素的`loading`属性
+
+您可能已经知道，图像元素现在可以包含一个`loading`属性，将延迟加载作为一项功能放入浏览器中，这是我们多年来使用 JavaScript 解决方案所做的事情。但不要忘记该`loading`属性也可以用于`<iframe>`元素：
+
+```html
+<iframe src="/page.html" width="300" height="250" loading="lazy">
+```
+
+与图像一样，该`loading`属性接受`eager`（默认浏览器行为）或 `lazy`，这会延迟 iframe 内容的加载，直到 iframe 即将进入视口。此属性的唯一缺点是 Firefox 不支持在 iframe 上使用它（尽管 Firefox 确实支持`loading`图像）。
+
+
+
+## 表单字段的`form`属性 
+
+在大多数情况下，您会将表单输入和控件嵌套在`<form>`元素中。但是，如果您的应用程序或布局需要一些不同的东西，您可以选择将表单输入放在您想要的任何位置，并将其与任何`<form>`元素相关联——即使不是元素的父元素。
+
+```html
+<form id="myForm" action="/form.php">
+  <input id="name">
+  <button type="submit">
+</form>
+
+<input type="email" form="myForm">
+```
+
+正如您在上面看到`<input>`的，表单外部的电子邮件的`form`属性设置为`myForm`，该属性设置为与表单的相同的值`id`。`submit`您可以使用此属性和表单的id将表单控件（包括按钮）与文档中的任何表单相关联。
+
+[您可以使用此演示页面](https://www.impressivewebs.com/demo-files/html5-form-attribute/)进行尝试。表单使用 GET 请求提交，因此您可以在 URL 的查询字符串中看到提交的值。在该页面上，“评论”框位于`<form>`元素之外。
+
+我对这个属性的唯一抱怨是它可能应该被赋予一个更独特的名称，也许像“formowner”之类的东西。尽管如此，如果您的设计或布局需要无父表单字段，请记住它是有用的。
+
+
+
+## 删除/插入的`cite`和`datetime`属性
+
+我在处理块引用时已经提到`cite`过，但是这个属性也可以用于用`<del>`and`<ins>`元素标记的删除和插入。此外，两个元素都可以包含一个`datetime`属性。
+
+```html
+<del
+  cite="https://bugzilla.mozilla.org/show_bug.cgi?id=1620467"
+  datetime="2020-07-23"
+>Firefox doesn't support CSS's standard <code>appearance</code> property, so you can only use it prefixed.</del>
+
+<ins          
+  cite="https://bugzilla.mozilla.org/show_bug.cgi?id=1620467"
+  datetime="2020-07-23"
+>The <code>appearance</code> property, previously only available prefixed in Firefox, can now be used in all modern browers unprefixed.</ins>
+```
+
+对于每个元素，这两个属性代表的内容如下：
+
+- `cite`
+  指向资源的 URL，该资源解释了删除或插入内容的原因。
+- `datetime`
+  删除或插入的日期。
+
+在我的例子中，我使用了一些文本的例子，描述了一个在 Firefox 中需要供应商前缀的 CSS 属性。这可能是一篇旧博客文章。删除前缀后，我可以使用`<del>`和`<ins>`元素来`delete`获取旧文本和`insert`新文本。然后我可以使用`cite`该属性来引用解决问题的错误报告。
+
+## `<optgroup>`元素 的`label`属性
+
+最后，这最后一个有点像老歌，但因为它不经常被使用，也许你甚至不知道它的存在。这是一个元素和一个属性的组合。
+
+`<select>`如果下拉选项中包含一长串项目，则可以使用`<optgroup>`元素及其关联`label`属性将选项分组为可见类别：
+
+```html
+<select>
+  <option>--Your Favourite Animal--</option>
+  <optgroup label="Birds">
+    <option>Blue Jay</option>
+    <option>Cardinal</option>
+    <option>Hummingbird</option>
+  </optgroup>
+  <optgroup label="Sea Creatures">
+    <option>Shark</option>
+    <option>Clownfish</option>
+    <option>Whale</option>
+  </optgroup>
+  <optgroup label="Mammals">
+    <option>Lion</option>
+    <option>Squirrel</option>
+    <option>Quokka</option>
+  </optgroup>
+</select>
+```
+
+您可以使用以下 CodePen 来试用一个示例：
+
+<image id="img" src="/public/post21image6.png" style="max-width: 730px;" >
+</image>
+[请参阅Louis](https://codepen.io/impressivewebs) Lazaris的 Using label Attribute with optgroup Elements [forked](https://codepen.io/smashingmag/pen/xxpGQjB)。
+
+请注意，每个`<optgroup>`都有一个`label`为每个组定义标题的属性——但不能选择标题。作为额外提示，您还可以使用`disabled` 上的属性来禁用`<select>`下拉菜单`<optgroup>`该部分中的所有选项。
+
+
+
+## 用于预加载响应式图像的`imagesizes`和`imagesrcset`属性 
+
+这是我在研究本文时的另一对新属性，它们在规范中也是相对较新的。
+
+这两个属性都可以与元素一起定义[`rel=preload`](https://www.smashingmagazine.com/2016/02/preload-what-is-it-good-for/)，`as`如下`<link>`所示：
+
+```html
+<link rel="preload"
+      as="image"
+      imagesrcset="images/example-480.png 480w,
+             images/example-800.png 800w,
+             images/example.png 2000w"
+     imagesizes="(max-width: 600px) 480px,
+            (max-width: 1000px) 800px,
+            1000px"
+     src="images/example.png"
+     alt="Example Image">
+```
+
+这里的使用`rel=preload`通知浏览器我们希望指定的资源优先加载，因此它们不会被脚本和样式表之类的东西阻塞。该`as`属性指定所请求内容的类型。
+
+您可以使用`href`属性以及`preload`和预加载常规图像`as`。但最重要的是，您可以使用`imagesrcset`and`imagesizes`属性，就像我在上面的代码中所做的那样。
+
+这允许您预加载正确的图像，具体取决于视口的大小或您在`imagesizes`属性中指定的其他媒体功能。
+
+
+
+## 结尾：荣誉提名 
+
+除了我已经详细描述和演示的属性之外，您可能还想了解其他一些属性，我将在这里简要提及：
+
+- `crossorigin`可以应用于多个元素的属性，包括`<audio>`、`<img>`、`<link>`、`<script>`和`<video>`，为跨域资源共享（CORS）提供支持；
+- `<dfn>`和`<abbr>`的`title`属性；
+- `<video>`元素的新`disablepictureinpicture`属性；
+- 脚本的`integrity`属性，帮助浏览器验证资源没有被不当操作；
+- 元素的`disabled`属性`<fieldset>`，轻松同时禁用多个表单元素；
+- 电子邮件和文件输入的`multiple`属性。
+
+如果您使用过本文中提到的任何属性，或者您知道另一个 HTML 功能，亦或者您个人从在您的一个项目中使用而受益，请随时在评论中告诉我。
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
