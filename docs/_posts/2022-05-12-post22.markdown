@@ -1,0 +1,245 @@
+---
+layout: post
+title: "雅虎日本的无密码认证"
+date: 2022-05-12 06:02:20 -0000
+categories: frontend authentication
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：[Yuya Ito](https://web.dev/authors/yuyaito/)、[Eiji Kitamura](https://web.dev/authors/agektmr/)、[Alexandra White](https://web.dev/authors/alexandrawhite/)
+>
+> 原文链接：[Yahoo! JAPAN's password-free authentication reduced inquiries by 25%, sped up sign-in time by 2.6x](https://web.dev/yahoo-japan-identity-case-study/)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> 了解雅虎日本如何建立一个无密码身份认证系统。
+
+雅虎日本的无密码认证减少了25%的咨询，将登录时间加快了2.6倍
+
+雅虎日本是日本最大的媒体公司之一，提供搜索、新闻、电子商务和电子邮件等服务。每月有超过5000万用户登录雅虎日本的服务。
+
+多年来，有许多针对用户账户的攻击和导致账户访问权丢失的问题。这些问题大多与使用密码进行认证有关。
+
+随着最近认证技术的进步，雅虎日本已决定从基于密码的认证转向无密码认证。
+
+
+
+### 为什么是无密码？
+
+由于雅虎日本提供电子商务和其他与金钱有关的服务，在未经授权的访问或账户丢失的情况下，有可能给用户带来重大损失。
+
+与密码有关的最常见的攻击是密码列表攻击和网络钓鱼诈骗。密码列表攻击常见且有效的原因之一是许多人习惯于在多个应用程序和网站上使用相同的密码。
+
+以下数字是雅虎日本进行的一项调查的结果。
+
+- 50%的用户在六个或更多的网站上使用相同的ID和密码
+
+- 60%的用户在多个网站上使用同一密码
+
+- 70%的用户使用密码作为登录的主要方式
+
+用户经常忘记他们的密码，这在与密码有关的查询中占了大多数。也有用户除了忘记密码之外，还忘记了自己的登录ID的咨询。在高峰期，这些查询占了所有账户相关查询的三分之一以上。
+
+通过取消密码，雅虎日本的目的不仅是为了提高安全性，而且是为了提高可用性，而不给用户带来任何额外的负担。
+
+从安全的角度来看，从用户认证过程中消除密码可以减少基于列表的攻击所带来的损害，从可用性的角度来看，提供一种不依赖记忆密码的认证方法可以防止用户因为忘记密码而无法登录的情况。
+
+
+
+### 雅虎日本的无密码举措
+
+雅虎日本正在采取一系列措施来促进无密码认证，这些措施大致可分为三类。
+
+- 提供替代密码的认证方式。
+- 停用密码。
+- 无密码账户注册。
+
+前两项举措针对现有用户，而无密码注册则针对新用户。
+
+#### 1.提供一个替代密码的认证方式
+
+雅虎日本提供以下替代密码的方式。
+
+1. [短信认证](https://web.dev/sms-otp-form/)
+2. [带有WebAuthn的FIDO](https://developers.google.com/identity/fido)
+
+此外，我们还提供电子邮件认证、密码与短信OTP（one time password，一次性密码）相结合、密码与电子邮件OTP相结合等认证方式。
+
+> 重要提示
+>
+> 雅虎日本将其服务限制在日本境内的电话运营商，并禁止VoIP短信。
+
+##### 短信认证
+
+短信认证是一个允许注册用户通过短信收到六位数认证码的系统。一旦用户收到短信，他们就可以在应用程序或网站上输入认证码。
+
+<image id="img" src="/public/post22image1.jpeg" style="max-width: 730px;" >
+</image>
+
+
+长期以来，苹果公司允许iOS读取短信，并从短信正文中提示认证码。最近，通过在输入元素的`autocomplete`属性中指定 "一次性代码"，就可以使用建议。Android、Windows和Mac上的Chrome浏览器可以使用[WebOTP API](https://developer.mozilla.org/zh-CN/docs/Web/API/WebOTP_API)提供同样的体验。
+
+举例来说:
+
+``````html
+<form>
+  <input type="text" id="code" autocomplete="one-time-code"/>
+  <button type="submit">sign in</button>
+</form>
+``````
+
+``````javascript
+if ('OTPCredential' in window) {
+  const input = document.getElementById('code');
+  if (!input) return;
+  const ac = new AbortController();
+  const form = input.closest('form');
+  if (form) {
+    form.addEventListener('submit', e => {
+      ac.abort();
+    });
+  }
+  navigator.credentials.get({
+    otp: { transport:['sms'] },
+    signal: ac.signal
+  }).then(otp => {
+    input.value = otp.code;
+  }).catch(err => {
+    console.log(err);
+  });
+}
+``````
+
+
+这两种方法都是为了防止网络钓鱼，在短信正文中包括域名，并只为指定的域名提供建议。
+
+关于WebOTP API和`autocomplete="one-time-code"`的更多信息，请查看[SMS OTP表单最佳实践](https://web.dev/sms-otp-form/)。
+
+<image id="img" src="/public/post22image2.png" style="max-width: 730px;" >
+</image>
+
+
+##### 带有WebAuthn的FIDO
+
+FIDO with WebAuthn使用一个硬件认证器来生成公钥密码对并证明其拥有权。当智能手机被用作认证器时，它可以与生物识别认证（如指纹传感器或面部识别）相结合，进行一步到位的双因素认证。在这种情况下，只有签名和生物识别认证的成功指示被发送到服务器，所以没有生物识别的风险。
+
+下图显示了FIDO的服务器-客户端配置。客户端认证器通过生物识别技术对用户进行认证，并使用公钥加密技术对结果进行签名。用于创建签名的私钥被安全地存储在[TEE（Trusted Execution Environment，可信执行环境）](https://en.wikipedia.org/wiki/Trusted_execution_environment)或类似的地方。使用FIDO的服务提供者被称为RP（relying party，依赖方）。
+
+<image id="img" src="/public/post22image3.png" style="max-width: 730px;" >
+</image>
+一旦用户进行了认证（通常使用生物识别扫描或PIN），认证者就会使用私钥向浏览器发送一个签名的验证信号。然后，浏览器与RP的网站共享该信号。
+
+RP网站然后将签名的验证信号发送到RP的服务器，服务器根据公钥验证签名以完成认证。
+
+**欲了解更多信息**，请阅读[FIDO联盟的认证指南](https://fidoalliance.org/fido-authentication/)。
+
+雅虎日本在安卓（移动应用和网页）、iOS（移动应用和网页）、Windows（Edge、Chrome、Firefox）和macOS（Safari、Chrome）上支持FIDO。作为一项消费者服务，FIDO几乎可以在任何设备上使用，这使它成为推广无密码认证的良好选择。
+
+<image id="img" src="/public/post22image4.png" style="max-width: 730px;" >
+</image>
+
+<image id="img" src="/public/post22image5.png" style="max-width: 730px;" >
+</image>
+
+图为雅虎日本使用FIDO进行认证的提示样本
+
+雅虎日本建议，如果用户还没有通过其他方式进行认证，就用WebAuthn注册FIDO。当用户需要用同一台设备登录时，他们可以使用生物识别传感器快速进行认证。
+
+用户必须在他们用来登录雅虎日本的所有设备上设置FIDO认证。
+
+为了促进无密码认证，并考虑到正在向无密码过渡的用户，我们提供了多种认证方式。这意味着不同的用户可以有不同的认证方式设置，他们可以使用的认证方式可能因浏览器而异。我们相信，如果用户每次都使用相同的认证方法来登录，会有更好的体验。
+
+为了满足这些要求，我们有必要跟踪以前的认证方法，并通过存储cookies等形式将这些信息与客户端联系起来。然后我们可以分析不同的浏览器和应用程序是如何进行认证的。根据用户的设置、以前使用的认证方法以及所需的最低认证级别，要求用户提供适当的认证。
+
+
+
+#### 2.密码停用
+
+雅虎日本要求用户设置替代认证方法，然后停用密码，使其无法使用。除了设置替代认证外，停用密码认证（因此使用户无法仅凭密码登录）有助于保护用户免受基于列表的攻击。
+
+我们已经采取了以下措施来鼓励用户禁用密码。
+
+- 在用户重新设置密码时，推广替代的认证方法。
+- 鼓励用户设置易于使用的认证方法（如FIDO），在需要频繁认证的情况下禁用密码。
+- 敦促用户在使用电子商务支付等高风险服务前禁用其密码。
+
+如果用户忘记了他们的密码，他们可以运行一个账户恢复。以前这涉及到密码重置。现在，用户可以选择设置一个不同的认证方法，我们鼓励他们这样做。
+
+
+
+#### 3.无密码账户注册
+
+新用户可以创建无密码的雅虎日本账户。用户首先需要用短信认证来注册。一旦他们登录了，我们鼓励用户设置FIDO认证。
+
+由于FIDO是按设备设置的，如果设备无法使用，恢复账户可能很困难。因此，我们要求用户保持他们的手机号码注册，即使他们已经设置了额外的认证。
+
+##### 无密码认证的关键挑战
+
+密码依赖于人的记忆，并且与设备无关。另一方面，到目前为止，我们的无密码计划中所介绍的认证方法是依赖于设备的。这带来了一些挑战。
+
+当使用多种设备时，有一些与可用性有关的问题。
+
+- 当使用SMS认证从PC上登录时，用户必须检查他们的手机是否有传入的SMS信息。这可能很不方便，因为它要求用户的手机随时都可以使用，而且很容易进入。
+- 使用FIDO，特别是使用平台认证器，拥有多台设备的用户将无法在未注册的设备上进行认证。必须为他们打算使用的每台设备完成注册。
+
+FIDO认证与特定的设备相联系，这就要求这些设备一直在用户手中并处于激活状态。
+
+- 如果取消了服务合同，就不可能再向注册的电话号码发送短信。
+- FIDO在特定的设备上存储私钥。如果该设备丢失，这些密钥就无法使用。
+
+雅虎日本正在采取各种措施来解决这些问题。
+
+最重要的解决方案是鼓励用户设置多种认证方法。这在设备丢失时提供了替代的账户访问。由于FIDO密钥与设备有关，在多台设备上注册FIDO私钥也是一个好的做法。
+
+另外，用户可以使用[WebOTP API](https://web.dev/sms-otp-form/)将短信验证码从安卓手机传递到PC上的Chrome浏览器。
+
+> 苹果最近宣布了[passkeys](https://developer.apple.com/documentation/authenticationservices/public-private_key_authentication/supporting_passkeys)功能。苹果公司使用iCloud Keychain在使用同一Apple ID登录的设备之间共享私钥（存储在设备上），这样就不需要为每台设备进行注册。FIDO联盟认识到账户恢复问题的重要性，并发表了一份[白皮书](https://fidoalliance.org/white-paper-multiple-authenticators-for-reducing-account-recovery-needs-for-fido-enabled-consumer-accounts/)。
+
+我们认为，随着无密码认证的普及，解决这些问题将变得更加重要。
+
+##### 推广无密码认证
+
+雅虎日本自2015年以来一直致力于这些无密码举措。这是从2015年5月获得FIDO服务器认证开始的，随后又推出了短信认证、密码停用功能，以及对每台设备的FIDO支持。
+
+如今，超过3000万月度活跃用户已经禁用密码，并使用非密码认证方法。雅虎日本对FIDO的支持从安卓上的Chrome浏览器开始，现在已经有超过1000万用户设置了FIDO认证。
+
+由于雅虎日本的举措，涉及遗忘登录ID或密码的咨询比例与此类咨询数量最高的时期相比下降了25%，而且我们还能够确认，由于无密码账户数量的增加，未经授权的访问也有所下降。
+
+由于FIDO的设置非常简单，它的转换率特别高。事实上，雅虎日本发现，FIDO的CVR比SMS认证要高。
+
+- 25%的用户遗忘凭证的请求减少了
+
+- 74%的用户成功使用FIDO认证
+
+- 65%的用户使用短信验证成功
+
+FIDO的成功率高于短信验证，而且平均和中位验证时间更快。至于密码，有些群体的认证时间很短，我们怀疑这是由于浏览器的 [`autocomplete="current-password"`](https://web.dev/sign-in-form-best-practices/#current-password)造成的。
+
+<image id="img" src="/public/post22image6.png" style="max-width: 730px;" >
+</image>
+
+图为密码、短信和FIDO的认证时间对比。
+
+平均而言，FIDO的认证时间为8秒，而密码则需要21秒，短信验证则需要27秒。
+
+提供无密码账户的最大困难不是增加认证方法，而是**普及认证器的使用**。如果使用无密码服务的体验对用户不友好，过渡就不容易。
+
+我们认为，为了实现更好的安全性，我们必须首先提高可用性，这将需要对每项服务进行独特的创新。
+
+
+
+### 结论
+
+密码认证在安全方面是有风险的，而且在可用性方面也有挑战。现在，支持非密码认证的技术，如WebOTP API和FIDO，已经更加普及，是时候开始努力实现无密码认证。
+
+在雅虎日本，采取这种方法对可用性和安全性都产生了一定的影响。然而，许多用户仍在使用密码，所以我们将继续鼓励更多的用户转向无密码认证方式。我们还将继续改进我们的产品，以优化无密码认证方法的用户体验。
+
+图片来源：[Unsplash](https://unsplash.com/)上的*olieman.eth*
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
