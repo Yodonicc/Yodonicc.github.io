@@ -1,0 +1,262 @@
+---
+layout: post
+title: "Web性能优化：不要与浏览器预加载扫描器对抗"
+date: 2022-05-16 06:02:20 -0000
+categories: frontend performance
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：[Jeremy Wagner](https://web.dev/authors/jlwagner/)
+>
+> 原文链接：[Don't fight the browser preload scanner](https://web.dev/preload-scanner/)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> 了解什么是浏览器预加载扫描器，它如何帮助提高性能，以及你如何才能不受其影响。
+
+
+
+优化页面速度的一个被忽视的方面就是要对浏览器的内部结构有一定的了解。浏览器进行了某些优化，以提高性能，而我们作为开发者却无法做到这一点——但前提是我们不能无意中阻挠这些优化。
+
+需要了解的一个浏览器内部优化是浏览器预加载扫描器。在这篇文章中，我们将谈一谈预加载扫描器是如何工作的，更重要的是，你可以如何避免妨碍它。
+
+### 什么是预加载扫描器？
+
+每个浏览器都有一个主要的HTML解析器，它对原始标记进行[标记](https://en.wikipedia.org/wiki/Lexical_analysis#Tokenization)，并将其处理为一个[对象模型](https://developer.mozilla.org/docs/Web/API/Document_Object_Model)。这一切都在愉快地进行着，直到解析器发现一个[阻塞资源](https://web.dev/render-blocking-resources/)时暂停，例如用`<link>`元素加载的样式表，或用`<script>`元素加载的脚本，但没有`async`或`defer`属性。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post24image1.png" style="max-width: 730px;" />
+
+图1：浏览器的主要HTML解析器如何被阻塞的图示。在这种情况下，解析器遇到了一个外部CSS文件的`<link>`元素，它阻止了浏览器解析文档的其余部分，甚至是渲染任何文档，直到CSS被下载和解析。
+
+在CSS文件的情况下，解析和渲染都被阻止，以防止出现[无样式内容的闪光（FOUC）](https://en.wikipedia.org/wiki/Flash_of_unstyled_content)，即在样式被应用到一个页面之前，可以短暂地看到一个无样式的版本。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post24image2.png" style="max-width: 730px;" />
+
+图2：FOUC的一个模拟例子。左边是没有样式的web.dev的首页。右边是应用了样式的同一页面。如果浏览器在下载和处理样式表的时候没有阻止渲染，那么无样式的状态就会在瞬间发生。
+
+当浏览器遇到没有`defer`或`async`属性的`<script>`元素时，也会阻止对页面的解析和渲染。
+
+> 从带有[`type=module`](https://developer.mozilla.org/docs/Web/JavaScript/Guide/Modules#applying_the_module_to_your_html)[属性](https://developer.mozilla.org/docs/Web/JavaScript/Guide/Modules#applying_the_module_to_your_html)的`<script>`元素中加载的脚本，默认情况下是延缓的。
+
+这样做的原因是，当主要的HTML解析器还在做它的工作时，浏览器无法确定任何特定的脚本是否会修改DOM。这就是为什么在文档的末尾加载你的JavaScript是一种常见的做法，这样解析和渲染受阻的影响就变得微不足道。
+
+这些都是浏览器应该阻止解析和渲染的很好的理由，但是阻止这两个重要步骤中的任何一个都是可取的，因为它们会耽误其他重要资源的发现而耽误展示。值得庆幸的是，浏览器通过一个叫做预加载扫描器的二级HTML解析器，尽力缓解了这个问题。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post24image3.png" style="max-width: 730px;" />
+
+图3：描述预加载扫描器如何与主HTML解析器并行工作以推测性地加载资源的图。在这里，主HTML解析器在开始处理`<body>`元素中的图像标记之前，由于加载和处理CSS而受阻，但预加载扫描器可以在原始标记中向前看，找到图像资源，并在主HTML解析器解除封锁之前开始加载。
+
+[预加载扫描器的作用是推测性的](https://html.spec.whatwg.org/multipage/parsing.html#speculative-html-parsing)，也就是说，它检查原始标记，以便在主要的HTML解析器发现资源之前，寻找机会获取这些资源。
+
+
+
+### 如何判断预加载扫描器是否在工作？
+
+预加载扫描器的存在是因为渲染和解析受阻。如果这两个性能问题不存在，预加载扫描器就不会很有用。要弄清楚一个网页是否从预加载扫描器中受益，关键取决于这些阻塞现象，为了做到这一点，我们可以为请求引入一个人为的延迟，以找出预加载扫描器的工作位置。
+
+让我们来看看一个带有样式表的基本文本和图片的[页面](https://preload-scanner-fights.glitch.me/artifically-delayed-requests.html)。因为CSS文件同时阻止了渲染和解析，我们可以通过代理服务为样式表引入两秒的人为延迟。这个延迟使我们更容易在网络瀑布图中看到预加载扫描器的工作情况。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post24image4.png" style="max-width: 730px;" />
+
+图4：在移动设备上通过模拟3G连接在Chrome上运行的[网页](https://preload-scanner-fights.glitch.me/artifically-delayed-requests.html)的 [WebPageTest](https://www.webpagetest.org/) [网络瀑布图](https://developer.chrome.com/docs/devtools/network/reference/#waterfall)。尽管样式表在开始加载前通过代理被人为地延迟了两秒，但位于标记有效载荷后面的图像被预加载扫描器发现。
+
+正如你在瀑布图中所看到的，即使在渲染和文档解析受阻的时候，预加载扫描器也能发现`<img>`元素。如果没有这个优化，浏览器就不能在阻塞期间适时地获取东西，更多的资源请求将是串行的而不是并发的。
+
+有了这个玩具般的例子，让我们来看看一些现实世界中预加载扫描器可能被击败的模式，以及如何解决这些问题。
+
+> 这些模式并不是一个详尽的列表，只是一些常见的模式。
+
+
+
+### 注入的异步脚本
+
+假设你的`<head>`中的HTML包含一些内联的JavaScript，像这样。
+
+``````html 
+<script>
+  const scriptEl = document.createElement('script');
+  scriptEl.src = '/yall.min.js';
+
+  document.head.appendChild(scriptEl);
+</script>
+``````
+
+注入的脚本默认是[异步](https://developer.mozilla.org/docs/Web/HTML/Element/script#attr-async)的，所以当这个脚本被注入的时候，它的行为就像被应用了`async`属性一样。这意味着它将尽快运行，而不会阻塞渲染。听起来很理想，对吗？然而，如果我们假设这个内联`<script>`是在加载外部CSS文件的`<link>`元素之后，我们会得到一个次优的结果。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post24image5.png" style="max-width: 730px;" />
+
+图5：在移动设备上通过模拟3G连接在Chrome上运行的[网页](https://preload-scanner-fights.glitch.me/injected-async-script.html)的WebPageTest网络瀑布图。该页面包含一个样式表和一个注入的异步脚本。在渲染阻塞阶段，预加载扫描器无法发现该脚本，因为它是在客户端注入的。
+
+我们来分析一下这里发生了什么。
+
+1. 0秒时，主文件被请求。
+2. 在1.4秒时，导航请求的第一个字节到达。
+3. 在2.0秒时，CSS和图片被请求。
+4. 由于解析器在加载样式表时受阻，而注入`async`脚本的内联JavaScript在2.6秒时出现在样式表之后，因此该脚本提供的功能并不能尽快使用。
+
+这是不理想的，因为对脚本的请求只发生在样式表下载完成之后。This delays the script from running as soon as possible. 这有可能会影响页面的交互时间（TTI, [Time to Interactive ](https://web.dev/tti/)）。相比之下，由于`<img>`元素在服务器提供的标记中是可以被发现的，它可以被预加载扫描仪发现。
+
+那么，如果我们使用一个带有`async`属性的普通`<script>`标签，而不是将脚本注入DOM，会发生什么？
+
+``````html
+<script src="/yall.min.js" async></script>
+``````
+
+这就是结果。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post24image6.png" style="max-width: 730px;" />
+
+图6：在移动设备上通过模拟3G连接在Chrome上运行的[网页](https://preload-scanner-fights.glitch.me/inline-async-script.html)的WebPageTest网络瀑布图。该页面包含一个样式表和一个异步脚本元素。预加载扫描器在渲染阻塞阶段发现了该脚本，并与CSS同时加载。
+
+可能有一些人认为，这些问题可以通过使用 [`rel=preload`](https://developer.mozilla.org/docs/Web/HTML/Link_types/preload)来解决。这当然可行，但它可能会带来一些副作用。毕竟，为什么要用`rel=preload`来解决一个可以通过不向DOM中注入`<script>`元素来避免的问题呢？
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post24image7.png" style="max-width: 730px;" />
+
+图7：WebPageTest网络瀑布图，该[网页](https://preload-scanner-fights.glitch.me/preloaded-injected-async-script.html)在移动设备上的Chrome浏览器上通过模拟的3G连接运行。该页面包含一个样式表和一个注入的异步脚本，但异步脚本被预加载，以确保它更早被发现。
+
+预加载 "解决 "了这里的问题，但它引入了一个新的问题：前两个演示中的异步脚本——尽管被加载在`<head>`中——是以 "低 "优先级加载的，而样式表则以 "最高 "优先级加载。在最后一个预装异步脚本的演示中，样式表仍然以 "最高 "优先级加载，但脚本的优先级已经提升到 "高"。
+
+> 资源优先级可以在现代浏览器的网络标签中发现。特别是对于Chrome DevTools，[你可以右键点击列标题](https://developer.chrome.com/docs/devtools/network/reference/#columns)，以确保优先级列是可见的。请确保在多个浏览器中进行测试，因为资源优先级因浏览器和其他因素而异。
+
+当一个资源的优先级被提高时，浏览器会分配更多的带宽给它。这意味着——即使样式表有最高的优先级——脚本的优先级提高可能会导致带宽争用。这可能是慢速连接的一个因素，或者在资源相当大的情况下。
+
+这里的答案很简单：如果在启动过程中需要脚本，不要通过把它注入DOM来破坏预加载扫描器。根据需要试验一下`<script>`元素的位置，以及诸如`defer`和`async`等属性。
+
+> Ilya Grigorik写了一篇[内容丰富的文章](https://www.igvita.com/2014/05/20/script-injected-async-scripts-considered-harmful/)，对注入的异步脚本进行了详细介绍。如果你想深入了解这个话题，请阅读它。
+
+
+
+### 懒加载的JavaScript
+
+懒加载是一种保存数据的好方法，这种方法经常被应用于图片。然而，有时懒加载被错误地应用于 "折叠上方 "的图片，可以这么说。
+
+这就在预加载扫描器方面引入了潜在的资源可发现性问题，并且会不必要地延迟发现图片的引用、下载、解码和展示所需的时间。让我们以这个图像标记为例。
+
+``````html
+<img data-src="/sand-wasp.jpg" alt="Sand Wasp" width="384" height="255">
+``````
+
+使用`data-`前缀是由JavaScript驱动的懒加载器的一个常见模式。当图片被滚动到视口中时，懒惰加载器会去掉`data-`前缀，也就是说，在前面的例子中，`data-src`变成了`src`。这种更新会提示浏览器获取资源。
+
+这种模式并没有什么问题，直到它被应用于启动时在视口中的图像。因为预加载扫描器并没有像读取`src`（或`srcset`）属性那样读取`data-src`属性，所以图像引用没有被提前发现。更糟糕的是，图像被延迟加载，直到懒惰加载器的JavaScript下载、编译和执行之后。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post24image8.png" style="max-width: 730px;" />
+
+图8：在移动设备上通过模拟3G连接在Chrome上运行的[网页](https://preload-scanner-fights.glitch.me/js-lazy-load-suboptimal.html)的WebPageTest网络瀑布图。尽管图像资源在启动时在视口中是可见的，但它被不必要地偷懒加载。这破坏了预加载的扫描器，导致了不必要的延迟。
+
+根据图像的大小——这可能取决于视口的大小——它可能是最大内容绘画（LCP， [Largest Contentful Paint](https://web.dev/lcp/)）的一个候选元素。当预加载扫描器不能提前获取图像资源时，可能是在页面的样式表阻止渲染时，LCP就会受到影响。
+
+> 重要的是
+>
+> 关于优化LCP的更多信息，超出了本文的范围，请阅读[优化最大内容的绘画](https://web.dev/optimize-lcp/)。
+
+解决办法是改变图像标记。
+
+``````html
+<img src="/sand-wasp.jpg" alt="Sand Wasp" width="384" height="255">
+``````
+
+这是在启动期间处于视口中的图像的最佳模式，因为预加载扫描器会更快地发现和获取图像资源。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post24iamge9.png" style="max-width: 730px;" />
+
+图9：在移动设备上通过模拟3G连接在Chrome上运行的[网页](https://preload-scanner-fights.glitch.me/js-lazy-load-optimal.html)的WebPageTest网络瀑布图。预加载扫描器在开始加载CSS和JavaScript之前就发现了图像资源，这让浏览器在加载图像时有了先机。
+
+在这个简化的例子中，结果是在慢速连接的情况下，LCP提高了100毫秒。这可能看起来不是一个巨大的改进，但当你考虑到这个解决方案是一个快速的标记修复，而且大多数网页比这组例子更复杂时，它就是一个巨大的改进。这意味着LCP候选人可能要与许多其他资源争夺带宽，所以像这样的优化变得越来越重要。
+
+> 重要性
+>
+> 图片并不是唯一可能受到次优懒惰加载模式影响的资源类型。[`<iframe>`元素](https://developer.mozilla.org/docs/Web/HTML/Element/iframe)也会受到影响，由于`<iframe>`元素可以加载许多子资源，对性能的影响可能会大大恶化。
+
+
+
+### CSS背景图片
+
+记住，浏览器的预加载扫描器会扫描标记。它并不扫描其他资源类型，比如CSS，它可能涉及对 [`background-image` 属性](https://developer.mozilla.org/docs/Web/CSS/background-image).所引用的图像的检索。
+
+像HTML一样，浏览器将CSS处理成它自己的对象模型，称为 [CSSOM](https://developer.mozilla.org/docs/Web/API/CSS_Object_Model)。如果在构建CSSOM时发现了外部资源，这些资源在发现时被请求，而不是由预加载扫描器来处理。
+
+假设你的页面的[LCP候选](https://web.dev/lcp/#what-elements-are-considered)是一个具有CSS `background-image`属性的元素。以下是资源加载时发生的情况。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post24iamge10.png" style="max-width: 730px;" />
+
+图10：在移动设备上通过模拟3G连接在Chrome浏览器上运行的一个[网页](https://preload-scanner-fights.glitch.me/css-background-image-no-preload.html)的WebPageTest网络瀑布图。该页面的LCP候选者是一个具有CSS`background-image`属性的元素（第3行）。它所请求的图像在CSS解析器找到它之前不会开始获取。
+
+在这种情况下，预加载扫描器并没有被击败，而是没有参与。即便如此，如果页面上的LCP候选者是来自一个`background-image`的CSS属性，你将会想要预加载该图像。
+
+``````html
+<!-- Make sure this is in the <head> below any
+     stylesheets, so as not to block them from loading -->
+<link rel="preload" as="image" href="lcp-image.jpg">
+``````
+
+> 注意事项
+>
+> 如果你的LCP候选人来自一个`background-image`的CSS属性，但该图像根据视口大小而变化，你就需要在`<link>`元素上指定 [`imagesrcset` 属性](https://developer.mozilla.org/docs/Web/HTML/Element/link#attr-imagesrcset) 。
+
+这个`rel=preload`的提示很小，但它可以帮助浏览器比其他方式更早地发现图像。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post24image11.png" style="max-width: 730px;" />
+
+图11：WebPageTest网络瀑布图，该[网页](https://preload-scanner-fights.glitch.me/css-background-image-with-preload.html)在移动设备上通过模拟的3G连接在Chrome上运行。页面的 LCP 候选是具有 CSS`background-image`属性的元素（第 3 行）。提示帮助浏览器`rel=preload`比没有提示时快 250 毫秒左右发现图像。
+
+有了这个`rel=preload`提示，LCP 候选会更快被发现，从而降低 LCP 时间。虽然该提示有助于解决此问题，但更好的选择可能是评估您的图像 LCP 候选*是否*必须从 CSS 加载。使用`<img>`标签，您可以更好地控制加载适合视口的图像，同时允许预加载扫描器发现它。
+
+
+
+### 使用客户端 JavaScript 渲染标记
+
+毫无疑问：[JavaScript 肯定会影响页面速度](https://almanac.httparchive.org/en/2021/performance#total-blocking-time-tbt)。我们不仅依靠它来提供交互性，而且我们还倾向于依靠它来提供内容本身。这在某些方面会带来更好的开发者体验；但开发人员的利益并不总是转化为用户的利益。
+
+可以无效化预加载扫描器的一种模式是使用客户端 JavaScript 呈现标记：
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post24image12.png" style="max-width: 730px;" />
+
+图12：通过模拟 3G 连接在移动设备上的 Chrome 上运行[的客户端呈现网页](https://preload-scanner-fights.glitch.me/client-rendered.html)的 WebPageTest 网络瀑布图。因为内容包含在 JavaScript 中并且依赖于框架来呈现，所以客户端呈现的标记中的图像资源对预加载扫描器是隐藏的。等效的服务器渲染体验[如图 9 所示](https://web.dev/preload-scanner/#fig-9)。
+
+当标记的有效载荷包含在浏览器中并完全由JavaScript渲染时，该标记中的任何资源对预加载扫描器来说都是不可见的。这就延迟了重要资源的发现，这当然会影响到LCP。在这些例子中，与不需要JavaScript的服务器渲染体验相比，对LCP图片的请求被大大延迟了。
+
+这有点偏离了本文的重点，但在客户端渲染标记的影响远远超出了对预加载扫描器的破坏。首先，引入JavaScript来驱动一个不需要的体验，会引入不必要的处理时间，从而影响到 "下一步绘画"[ Next Paint (INP) ](https://web.dev/inp/)的交互影响。
+
+此外，与服务器发送相同数量的标记相比，在客户端呈现大量标记更有可能生成[较长的任务。](https://web.dev/long-tasks-devtools/)这样做的原因——除了 JavaScript 涉及的额外处理——是浏览器从服务器流式传输标记并以避免长时间任务的方式进行渲染。另一方面，客户端呈现的标记作为单一的整体任务处理，这可能会影响页面响应性指标，例如除 INP 之外的[总阻塞时间 (TBT)](https://web.dev/tbt/)或[首次输入延迟 (FID) 。](https://web.dev/fid/)
+
+这种情况的补救措施取决于对这个问题的回答：**是否有理由说明为什么您的页面标记不能由服务器提供而不是在客户端呈现？**如果对此的回答是“否”，则应尽可能考虑服务器端渲染 (SSR) 或静态生成的标记，因为这将有助于预加载扫描器提前发现并有机会获取重要资源。
+
+如果您的页面*确实*需要 JavaScript 来将功能附加到页面标记的某些部分，您仍然可以使用 SSR，或者使用 vanilla JavaScript，或者使用[hydration](https://www.patterns.dev/posts/progressive-hydration/)，以获得两全其美的效果。
+
+
+
+### 帮助预加载扫描器帮助你
+
+预加载扫描器是一个非常有效的浏览器优化，可以帮助页面在启动时更快地加载。通过避免破坏其提前发现重要资源的能力的模式，你不仅使自己的开发更简单，你还创造了更好的用户体验，这将在许多指标上带来更好的结果，包括一些[网页关键指标](https://web.dev/vitals/)。
+
+回顾一下，以下是你想从这篇文章中得到的东西。
+
+- 浏览器预加载扫描器是一个辅助的HTML分析器，如果它被阻挡了，就会在主扫描器之前进行扫描，以伺机发现可以更早获取的资源。
+- 预加载扫描器无法发现服务器在初始导航请求中提供的标记中不存在的资源。打败预加载扫描器的方法可能包括（但不限于）。
+  - 用JavaScript将资源注入DOM，无论是脚本、图像、样式表，还是其他任何东西，最好是在服务器的初始标记有效载荷中。
+  - 使用JavaScript解决方案，懒、加载折页上方的图像或iframe。
+  - 在客户端渲染可能包含引用文档子资源的标记，使用JavaScript。
+- 预加载扫描仪只扫描HTML。它不会检查其他资源的内容——特别是CSS——可能包括对重要资产的引用，包括LCP候选。
+
+如果出于某种原因，你无法避免对预加载扫描器加快加载性能的能力产生负面影响的模式，可以考虑[`rel=preload`](https://developer.mozilla.org/docs/Web/HTML/Link_types/preload)资源提示。如果你确实使用了`rel=preload`，在实验室工具中进行测试，以确保它给你带来预期的效果。最后，不要预装太多的资源，因为当你优先考虑所有的东西时，没有什么会是。
+
+
+
+### 资源
+
+- [脚本注入的“异步脚本”被认为是有害的](https://www.igvita.com/2014/05/20/script-injected-async-scripts-considered-harmful/)
+- [浏览器预加载器如何使页面加载更快](https://andydavies.me/blog/2013/10/22/how-the-browser-pre-loader-makes-pages-load-faster/)
+- [预加载关键资产以提高加载速度](https://web.dev/preload-critical-assets/)
+- [尽早建立网络连接以提高感知页面速度](https://web.dev/preconnect-and-dns-prefetch/)
+- [优化最大的内容绘制](https://web.dev/optimize-lcp/)
+
+图片来源：*[来自Unsplash](https://unsplash.com/photos/oXlXu2qukGE)，作者[Mohammad Rahmani](https://unsplash.com/@afgprogrammer)。*
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
