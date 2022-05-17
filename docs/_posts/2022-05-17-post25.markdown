@@ -1,0 +1,149 @@
+---
+layout: post
+title: "Web性能优化：前端三大框架在Chrome最新性能指标上的表现"
+date: 2022-05-17 06:02:20 -0000
+categories: frontend performance
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：[Leena Sohoni](https://web.dev/authors/leenasohoni/)、[Addy Osmani](https://web.dev/authors/addyosmani/)、[Keen Yee Liau](https://web.dev/authors/keenyeeliau/)
+>
+> 原文链接：[How do modern frameworks perform on the new INP metric](https://web.dev/inp-in-frameworks/)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> 了解新的 INP 指标如何影响使用 JavaScript 框架和库构建的网站的体验。
+
+
+
+Chrome 最近在[Chrome UX 报告报告中引入了一个新的](https://developers.google.com/web/tools/chrome-user-experience-report)[实验性响应指标](https://groups.google.com/a/chromium.org/g/chrome-ux-report-announce/c/F7S4_emZkcw)。这个指标，我们现在称为[INP（Interaction to Next Paint）](https://web.dev/inp/)，用于衡量对页面上用户交互的整体响应能力。今天，我们想分享关于使用现代 JavaScript 框架构建的网站与该指标关系的见解。我们想讨论 INP 为何与框架相关，以及[Aurora](https://web.dev/introducing-aurora/)和框架如何努力优化INP指标与响应能力。
+
+
+
+## 背景
+
+Chrome 使用首次输入延迟 ( [FID](https://web.dev/fid/#why-only-consider-the-input-delay) ，First Input Delay) 作为网站核心性能指标  ( [CWV](https://web.dev/learn-web-vitals/) ，Core Web Vitals) 的一部分来衡量网站的[负载响应](https://web.dev/user-centric-performance-metrics/#types-of-metrics)能力。FID 测量从第一次用户交互到浏览器能够处理连接到交互的事件处理程序的等待时间。它不包括处理事件处理程序、处理同一页面上的后续交互或在事件回调运行后绘制下一帧的时间。但是，响应能力对于整个页面生命周期的用户体验至关重要，因为用户在页面加载后大约 90% 的时间都花在页面上。
+
+[INP](https://web.dev/inp)测量网页响应用户交互所花费的时间，从用户开始交互到在屏幕上绘制下一帧的那一刻。通过 INP，我们希望能够对页面生命周期中所有交互的感知延迟进行聚合测量。我们相信 INP 将提供对网页负载和运行时响应性进行更准确的估计。
+
+由于 FID 仅测量第一次交互的输入延迟，因此 Web 开发人员可能没有主动优化后续交互作为其 CWV 改进过程的一部分。因此，网站，尤其是那些具有高度交互性的网站，必须开始努力在这个指标上做得很好。
+
+
+
+### 框架的角色
+
+由于许多网站依赖 JavaScript 来提供交互性，因此 INP 分数将受主线程上处理的 JavaScript 数量影响。[JavaScript 框架](https://developer.mozilla.org/docs/Learn/Tools_and_testing/Client-side_JavaScript_frameworks)是现代前端 Web 开发的重要组成部分，为开发人员提供有价值的抽象，用于路由、事件处理等等。因此，它们在优化网站的响应能力和用户体验方面发挥着核心作用。
+
+这些框架可能已经采取措施，通过更早地改进网站的 FID 来提高响应能力。但是，他们现在必须分析可用的响应性指标数据，并努力解决发现的任何差距。一般来说，INP测试往往通过率较低，测量过程的差异需要额外的代码优化。下表总结了原因。
+
+|                  | FID                                                          | INP                                                          |
+| :--------------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
+| 衡量标准         | 测量第一个用户输入和相应事件处理程序运行的时间之间的持续时间。 | 通过使用50次交互中单个最大的交互延迟来衡量整个互动延迟。<br /> - 小于50次交互中单个最大的交互延迟<br /> - 超过50个交互的[最大交互之一](https://web.dev/inp/#why-not-the-worst-interaction-latency) |
+| 取决于           | 运行第一次交互所需的JS事件处理主线程可用性。主线程可能会被阻塞，因为它正在处理其他资源作为初始页面加载的一部分。 | 主线程的可用性和不同交互的事件处理程序执行的脚本的大小，包括第一次交互。 |
+| 成绩差的主要原因 | FID 不佳主要是由于主线程上的[大量 JavaScript 执行造成的。](https://web.dev/optimize-fid/#heavy-javascript-execution) | 在运行处理程序后，大量的事件处理JavaScript和其他渲染任务会导致INP不佳。 |
+| 优化             | FID 可以通过改进页面加载时的资源加载和优化 JavaScript 代码来优化。 | 类似于每个交互的FID，加上渲染模式的使用，将关键的用户体验更新优先于其他渲染任务。 |
+
+Chrome浏览器中的[Aurora](https://web.dev/introducing-aurora/)团队与开源网络框架合作，帮助开发者改善用户体验的不同方面，包括性能和CWV指标。随着INP的引入，我们希望为基于框架的网站的CWV指标的变化做好准备。我们已经在CrUX报告中收集了基于实验响应性指标的数据。我们将分享见解和行动项目，以缓解基于框架的网站向INP指标的过渡。
+
+
+
+## 实验响应性指标数据
+
+低于或等于 200 毫秒的 INP 表示良好的响应能力。2022 年 4 月的 CrUX 报告数据和[CWV 技术报告](https://www.google.com/url?q=https://datastudio.google.com/s/gPxRJmoivLA&sa=D&source=docs&ust=1652475737927418&usg=AOvVaw3ZQ0WOZu2ZGjCuJb23dQYg)为我们提供了以下有关流行 JavaScript 框架的响应性的信息。
+
+> 此测量包括来自所列框架的所有版本的数据。对于更成熟的框架，这可能包括来自过时多年的版本的数据。
+
+| 技术              | % 通过百分比 |           |
+| :---------------- | :----------- | --------- |
+|                   | ％ 移动端    | ％ 桌面端 |
+| Angular (v2.0.0+) | 19.0         | 65.5      |
+| Next.js           | 20.2         | 73.4      |
+| Nuxt.js           | 25.4         | 84.5      |
+| Preact            | 36.6         | 90.6      |
+| Vue (v2.0.0+)     | 41.7         | 90.0      |
+| Lit               | 36.4         | 75.7      |
+
+> **重要提示**
+>
+> 我们建议不要仅仅根据上面的数字对您选择的框架做出决定，而不注意其他细微差别。许多不同的变量有助于使框架适合您的 Web 应用程序，并且该表仅反映 INP。此外，使用的数据集仅查看登录页，这不是某些列出的框架的典型用例。除了使用的框架，其他几个因素可能会影响性能指标。还值得注意的是，框架通常用于不同的应用程序[进行全方面考虑](https://jasonformat.com/application-holotypes/)，这可能是一个因素。如果您的站点使用特定框架，数据的目的是表明实现 INP 目标所需的努力程度。
+
+该表显示了每个框架上具有良好响应性得分的来源的百分比。这些数字令人鼓舞，但告诉我们还有很大的改进空间。
+
+
+
+## JavaScript 如何影响 INP？
+
+现场的INP值与实验室中观察到的总阻塞时间（TBT）有很好的相关性。这可能意味着，任何长期阻塞主线程的脚本都会对INP不利。在任何互动之后，大量的JavaScript执行可能会阻断主线程很长一段时间，并延迟对该互动的响应。导致脚本阻塞的一些常见原因是。
+
+- **未经优化的JavaScript**。冗余的代码或糟糕的代码分割和加载策略会导致JavaScript臃肿，并长期阻塞主线程。代码拆分、渐进式加载和[分解长任务](https://web.dev/long-tasks-devtools/)可以大大改善响应时间。
+
+- **第三方脚本**。 [第三方脚本](https://web.dev/optimizing-content-efficiency-loading-third-party-javascript/)，有时不需要处理交互（例如，广告脚本），会阻塞主线程，造成不必要的延迟。优先处理必要的脚本可以帮助减少第三方脚本的负面影响。
+
+- **多个事件处理函数**。与每个互动相关的多个事件处理程序，每个都在运行不同的脚本，可能会相互干扰，加起来会造成长时间的延迟。其中一些任务可能是非必要的，可以安排在 web worker或浏览器空闲时进行。
+
+- **框架在事件处理上的开销**。框架可能有额外的功能/语法用于事件处理。例如，Vue使用[v-on](https://v2.vuejs.org/v2/api/#v-on)将事件监听器附加到元素上，而Angular则包装了用户事件处理程序。实现这些功能需要额外的框架代码，高于普通的JavaScript。
+
+- **Hydration**。当使用一个JavaScript框架时，服务器为一个页面生成初始HTML是很常见的，然后需要用事件处理程序和应用状态来增强它，以便它可以在网络浏览器中进行交互。我们把这个过程称为 "注水"。在加载过程中，这可能是一个沉重的过程，这取决于JavaScript需要多长时间来加载和注水完成。它也可能导致页面看起来像是互动的，但其实不是。通常情况下，注水作用会在页面加载过程中自动发生或懒惰地发生（例如，在用户互动时），并可能由于任务调度而影响INP或处理时间。在React等库中，你可以利用`useTransition`，这样组件渲染的一部分就在下一帧中，任何更昂贵的副作用都会留到未来的帧。考虑到这一点，过渡期的更新会产生更紧急的更新，如点击，这对INP来说是一种好的模式。
+
+- **Prefetching**：积极地预取后续导航所需的资源，如果做得好的话，可以在性能上取得胜利。然而，如果你预取并同步渲染SPA路线，你最终会对INP产生负面影响，因为所有这些昂贵的渲染都试图在一帧内完成。这与不预取你的路由，而是启动所需的工作（例如，`fetch()`）和解除阻塞的绘制形成鲜明对比。我们建议重新审视你的框架的预取方法是否提供了最佳的用户体验，以及这对INP有什么影响（如果有的话）。
+
+从现在开始，为了获得一个好的INP分数，开发者必须专注于审查页面上每次交互后执行的代码，并优化他们的分块、补水、加载策略，以及第一方和第三方脚本的每次render()更新的大小。
+
+
+
+## Aurora 和框架如何解决 INP 问题？
+
+Aurora 通过结合最佳实践与框架一起工作，为常见问题提供内置解决方案。我们与 Next.js、Nuxt.js、Gatsby 和 Angular 合作开发了在框架内提供强大默认值以优化性能的[解决方案。](https://web.dev/introducing-aurora/#what-has-our-work-unlocked-so-far)以下是我们在这方面工作的重点：
+
+- **React 和 Next.js：** Next.js[脚本组件](https://web.dev/script-component/)有助于解决由于第三方脚本加载效率低下导致的问题。[Next.js 中引入了粒度分块](https://web.dev/granular-chunking-nextjs/)，以允许共享代码的较小块。这有助于减少在所有页面上下载的未使用公共代码的数量。我们还与 Next.js 合作，将 INP 数据作为其[分析](https://nextjs.org/analytics)服务的一部分提供。
+- **Angular：** Aurora 正在[与 Angular](https://angular.io/guide/roadmap#explore-hydration-and-server-side-rendering-usability-improvements)团队合作探索服务器端渲染和Hydration。我们还计划研究改进事件处理和变更检测以改进 INP。
+- **Vue 和 Nuxt.js：**我们正在探索协作的途径，主要是在脚本加载和渲染方面。
+
+
+
+### 框架是如何考虑改进 INP 的？
+
+#### React 和 Next.js 
+
+React.js*时间切片*，通过[startTransition](https://github.com/reactwg/react-18/discussions/41)和*Suspense*实现，允许您选择加入选择性或渐进式**Hydration**。这意味着**Hydration**不是同步块。它是在任何时候都可以中断的小片段中完成的。
+
+这应该有助于改进 INP 并使您能够更快地响应击键、过渡期间的悬停效果和点击。它还有助于保持 React 应用程序的响应性，即使对于自动完成等大型转换也是如此。
+
+Next.js 正在开发一个[新的路由框架](https://twitter.com/leeerob/status/1521659624516030466)，它将默认使用 startTransition 进行路由转换。这个目标是允许 Next.js 网站所有者采用 React 时间片并提高路由转换的响应能力。
+
+
+
+#### Angular
+
+Angular团队正在探索几个想法，这些想法应该也有助于INP的发展。
+
+- **无特定区域性**。缩减初始包的大小，以及在应用程序呈现任何东西之前必须加载的必要代码。
+- **Hydration**。岛屿式的**Hydration**，以限制应用程序中需要被唤醒的互动部分的数量。
+- **减少CD的开销**。例如，使变化检测的成本降低，找到检查更少的应用程序的方法，并利用关于变化的反应性信号。
+- **更精细的代码拆分**。使最初的JS包更小。
+- **更好地支持加载指标**：。例如，在SSR重新渲染期间，在routing期间，以及在懒加载操作中。
+- **剖析工具**。更好的开发工具来了解交互成本，特别是围绕特定交互的变化检测成本。
+  
+  
+
+通过这些改进，我们可以解决导致响应性和用户体验不佳的不同问题，并提升CWV指标和基于框架的网站新INP指标。
+
+
+
+## 结论
+
+我们希望 INP 分数能够为网站提供更好的指南针，以提高未来的响应能力和性能。我们将采取措施在 2022-23 年就该指标提供更多可操作的指导。我们希望通过以下方式实现：
+
+- 为框架和 Web 开发人员创建渠道，以便轻松访问 INP 上的字段数据。
+- 使用框架来构建默认情况下改进 INP 的功能。
+
+我们欢迎各大主流框架用户在开始他们的 INP 优化之旅时提供[反馈。](mailto:web-vitals-feedback@googlegroups.com)
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
+
