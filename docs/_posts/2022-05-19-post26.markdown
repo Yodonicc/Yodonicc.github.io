@@ -1,0 +1,585 @@
+---
+layout: post
+title: "TypeScript和JavaScript：需要了解的实用代码技巧"
+date: 2022-05-19 06:02:20 -0000
+categories: frontend javascript
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：[Marcio dos Anjos Junior](https://medium.com/@marciodosanjosjunior?source=post_page-----b2265352dabc--------------------------------)
+>
+> 原文链接：[TypeScript and JavaScript: Useful shortcuts to know](https://medium.com/@marciodosanjosjunior/typescript-and-javascript-useful-shortcuts-to-know-b2265352dabc)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+
+在编写干净和可扩展的代码时，使用速记代码并不总是正确的决定。简明的代码有时会让人在阅读和更新时更加困惑。重要的是，你的代码是可读的，并能向其他开发者传达意义和上下文信息。
+
+我们使用速记的决定不能有损于代码的其他理想特性。在JavaScript和TypeScript中使用以下表达式和操作符的速记时，请牢记这一点。
+
+> 所有在JavaScript中可用的实用代码技巧在TypeScript中也有相同的语法。
+
+
+
+### 三元运算符
+
+三元运算符是JavaScript和TypeScript中最流行的实用代码技巧之一。它取代了传统的`if...else`语句。它的语法如下。
+
+``````javascript
+const number = 10；
+if(number >= 5){
+	console.log('bigger or equal');
+}else{
+	console.log('smaller');
+}
+``````
+
+长写法
+
+``````javascript
+const number = 10;
+console.log(number >= 5 ? 'bigger or equal' : 'smaller');
+``````
+
+简写法
+
+
+
+### 短路运算符
+
+另一种取代`if...else`语句的方法是使用短路运算符。这种简写法使用逻辑OR运算符`||`，当预期值不准确时，为变量分配一个默认值。
+
+下面的例子演示了如何使用短路运算符。
+
+``````javascript
+const str = '';
+if (str ! == null && str !== undefined && str !== '') {
+console.log('default string');
+} else {
+console.log(str);
+``````
+
+长写法
+
+``````javascript
+const str = '':
+console.log(str || 'default string');
+``````
+
+简写法
+
+
+
+### 空值合并运算符
+
+空值合并运算符`??`与短路运算符类似，它被用来给变量分配一个默认值。然而，空值合并运算符只在预期值也是空值时使用默认值。
+
+换句话说，如果预期值为假，但不是空值，它就不会使用默认值。
+
+下面是两个关于空值合并运算符的例子。
+
+``````javascript
+const str = '';
+if (str !== null && str !== undefined) {
+console.log('default string');
+} else {
+console.log(str);
+``````
+
+
+例1--长写法
+
+``````javascript
+const str = '';
+console.log(str ?? 'default string');
+``````
+
+例1--简写法
+
+
+
+``````javascript
+const num = null;
+let actualNum;
+if (num !== null && num !== undefined) {
+actualNum = num;
+} else {
+actualNum = 0;
+}
+console.log(actualNum);
+``````
+
+例2--长写法
+
+``````javascript
+const num = null;
+let actualNum = num ?? 0;
+console.log(actualNum);
+``````
+
+例2--简写法
+
+
+
+### 模板字符串
+
+利用JavaScript强大的ES6功能，我们可以使用模板字符串，而不是用`+`来连接一个字符串中的多个变量。要使用模板字符串，需要用\``包住字符串，在这些字符串中用`${}`包住变量。
+
+下面的例子演示了如何使用模板字符串来执行字符串插值。
+
+``````javascript
+const name = 'Marcio'
+const hobby = 'to write articles';
+const fullStr = name + 'loves' + hobby;
+console.log(fullStr);
+``````
+
+长写法
+
+``````javascript
+const name = 'Marcio'
+const hobby = 'to write articles';
+const fullStr = `${name} loves ${hobby}`;
+console.log(fullStr);
+``````
+
+简写法
+
+
+
+### 对象字面量简写语法
+
+在JavaScript和TypeScript中，你可以通过在对象字面中提到变量，以速记的方式将一个属性分配给一个对象。要做到这一点，该变量必须用预定的键来命名。
+
+请看下面一个对象属性赋值简写语法的例子。
+
+``````javascript
+const obj = {
+  X: 1,
+  y: 2,
+  z: 3
+};
+console.log(obj);
+``````
+
+长写法
+
+``````javascript
+const X = 1;
+const y = 2;
+const z = 3;
+const obj = { x, y, Z };
+console.log(obj);
+``````
+
+简写法
+
+
+
+### 可选链操作符
+
+点符号允许我们访问一个对象的键或值。通过可选链，我们可以更进一步，在不确定键或值是否存在或被设置的情况下，也可以读取它们。当键不存在时，来自可选链的值是未定义的。
+
+``````javascript
+const obj {
+  X: {
+    y: 1,
+    Z: 2
+  },
+  others: [
+  	'test',
+    'tested'
+  ]
+};
+if (obj.hasProperty('others') && obj.others.length >= 2) {
+console.log('2nd value in others: obj. others[1]);
+``````
+
+长写法
+
+``````javascript
+const obj {
+  X: {
+    y: 1,
+    Z: 2
+  },
+  others: [
+  	'test',
+    'tested'
+  ]
+};
+console.log('2nd value in others:', obj.others?.[1]); // 'tested'
+console.log('3rd value in others:', obj.others?.[2]); // undefined
+``````
+
+简写法
+
+
+
+### 解构赋值
+
+除了传统的点符号，另一种读取对象值的方法是将对象的值重构为它们自己的变量。
+
+下面的例子演示了如何使用传统的点符号和使用解构赋值的实用代码技巧来读取一个对象的值。
+
+``````javascript
+const obj = {
+	X: {
+    y: 1,
+    Z: 2
+  },
+  other: 'test string'
+};
+console.log('Value of z in x: ', obj.x.z);
+console.log('Value of other: '', obj.other);
+``````
+
+长写法
+
+``````javascript
+const obj = {
+	X: {
+    y: 1,
+    Z: 2
+  },
+  other: 'test string'
+};
+const { x, other } = obj;
+const { z } = x;
+console.log('Value of z in x: ', z);
+console.log('Value of other: ', other);
+``````
+
+简写法
+
+
+
+你也可以重命名你从对象中去解构赋值的变量。这里有一个例子。
+
+``````javascript
+const obj = { x: 1, y: 2 };
+const { x: myVar } obj;
+console.log('My renamed variable:', myVar);
+``````
+
+简写法
+
+
+
+### 展开运算符
+
+展开运算符`...`是用来访问数组和对象的内容。你可以用展开操作符来代替数组函数，如`concat`，和对象函数，如`object.assign`。
+
+``````javascript
+const arr = [1, 2, 3];
+const biggerArr = [4, 5, 6].concat(arr);
+console.log(biggerArr);
+const smallobj = { x: 1 };
+const other0bj = Object.assign(smallObj, { y: 2 });
+console.log(otherObj);
+``````
+
+长写法
+
+``````javascript
+const arr [1, 2, 3] ;
+const biggerArr = [...arr, 4, 5, 6];
+console.log(biggerArr);
+const smallobj { x: 1 };
+const otherObj { ...smallobj, y: };
+console.log(other0bj);
+``````
+
+简写法
+
+
+
+### 对象遍历新方法
+
+传统的JavaScript的循环语法如下。
+
+``````javascript
+for (let i = 0; i < x; i++) { … }
+``````
+
+我们可以使用这种遍历语法，通过引用数组的长度来遍历数组的迭代器。
+
+有三个`for`循环的缩写，提供了不同的方式来遍历一个数组对象。
+
+- `for...of `用于访问数组条目
+- `for...in`访问数组的索引，当用于对象字面时，访问键值
+- `Array.forEach`使用回调函数对数组元素和它们的索引执行操作
+
+请注意，`Array.forEach`回调有三个可能的参数，按这个顺序调用。
+
+- 正在进行迭代的数组元素
+- 该元素的索引
+- 数组的完整拷贝
+
+下面的例子展示了这些对象遍历的实用代码技巧。
+
+``````javascript
+const arr = ['Yes' , 'No' , 'Maybe'];
+for (let i = 0; i < arr. length; i++) {
+console.log('Here is item:'， arr[i]);
+``````
+
+长写法
+
+``````javascript
+const arr = ['Yes', 'No' 'Maybe'];
+for (let str of arr) {
+	console.log('Here is item:', str);
+}
+arr.forEach( (str) => {
+	console.log('Here is item:', str);
+});
+for (let index in arr) {
+console.log(`Item at index ${index} is ${arr[index]}` );
+``````
+
+简写法
+
+``````javascript
+const obj = { a: 1, b: 2, C: 3 };
+for (let key in obj) {
+console.log(`Value at key ${key} is ${obj[key]}`);
+``````
+
+对于对象字面量简写语法
+
+
+
+### 使用位操作符的`Array.indexOf`简写法
+
+我们可以使用`Array.indexOf`方法查询一个数组中的项目是否存在。如果该项目存在于数组中，该方法将返回其索引位置，如果不存在，则返回-1。
+
+在JavaScript中，0是一个虚假的值，而小于或大于0的数字被认为是真实的。通常情况下，这意味着我们需要使用`if...else`语句来确定项目是否存在，使用返回的索引。
+
+使用位操作符`~`而不是`if...else`语句可以让我们对任何大于或等于0的数字得到一个真实的值。
+
+下面的例子演示了`Array.indexOf`的简写法，使用位运算符而不是`if...else`语句。
+
+``````javascript
+const arr = ['x', 'z'];
+const realNumIndex = arr. index0f ('x');
+if (realNumIndex > -1) {
+	console.log( 'exists!');
+} else if (realNumIndex === -1) {
+console.log('does not exist!');
+``````
+
+长写法
+
+``````javascript
+const arr = ['x', 'y', 'z'];
+console.log(~arr.indexOf('x') ? ' exists!' : 'does not exist!');
+``````
+
+简写法
+
+
+
+### 用`!!`将值转换为布尔值。
+
+在JavaScript中，我们可以使用`!![变量]`简写法将任何类型的变量转换为布尔值。
+
+请看一个使用`!![变量]`简写法将数值转换为布尔值的例子。
+
+``````javascript
+const simpleInt 3:
+const intAsBool = Boolean(simpleInt);
+console.log(intAsBool);
+``````
+
+长写法
+
+``````javascript
+const simpleInt = 3 ;
+const intAsBool = !!simpleInt;
+console.log(intAsBool);
+``````
+
+简写法
+
+
+
+### 箭头/Lambda函数表达式
+
+JavaScript中的函数可以使用箭头函数语法来编写，而不是传统的明确使用函数关键字的表达方式。箭头函数类似于其他语言中的lambda函数。
+
+请看这个使用箭头函数表达式简写函数的例子。
+
+``````javascript
+function printStr(str){
+	console.log('This is a string:', str);
+}
+
+printStr('JavaScript function!');
+``````
+
+长写法
+
+``````javascript
+const printStr = (str) => {
+	console.log('This is a string:', str);
+};
+printStr('JavaScript arrow function!') ;
+``````
+
+简写法
+
+``````typescript
+const printStr = (str: string) => {
+	console.log('This is a string:', str);
+};
+printStr('TypeScript arrow function!');
+``````
+
+TypeScript简写法（指定变量类型）
+
+
+
+### 使用箭头函数表达式的隐式返回
+
+在JavaScript中，我们通常使用`return`关键字来从一个函数中返回一个值。当我们使用箭头函数语法定义我们的函数时，我们可以通过省略大括号`{}`来隐式返回一个值。
+
+对于多行语句，如表达式，我们可以用小括号`()`来包裹我们的返回表达式。
+
+下面的例子演示了使用箭头函数表达式从一个函数中隐式返回一个值的简写法。
+
+``````javascript
+function capitalize (name) {
+	return name.toUpperCase();
+}
+
+console.log(capitalize('marcio'));
+
+function add (numA, numB) {
+	return numA + numB;
+}
+
+console.log(add(2, 3));
+``````
+
+长写法
+
+``````javascript
+const capitalize = (name) => name.toUpperCase();
+console.log(capitalize('marcio'));
+const add = (numA, numB) => (numA + numB);
+console.log(add(2, 3));
+``````
+
+简写法
+
+``````typescript
+const capitalize = (name: string) => name.toUpperCase();
+console.log(capitalize('marcio'));
+const add = (numA: number, numB: number) => (numA + numB);
+console.log(add(2, 3));
+``````
+
+TypeScript简写法 (指定变量类型)
+
+
+
+### 双位NOT运算符
+
+在JavaScript中，我们通常使用内置的`Math`对象访问数学函数和常数。然而，一些函数有有用的实用代码技巧，使我们能够在不引用`Math`对象的情况下访问该函数。
+
+例如，应用两次`~~`的bitwise NOT运算符，我们就可以得到一个数值的`Math.floor()`。
+
+请看下面的例子，看看如何使用双位NOT运算符作为`Math.floor()`。
+
+``````javascript
+const num = 4.5;
+const floorNum = Math.floor(num);
+console.log(floorNum);
+``````
+
+长写法
+
+``````javascript
+const num = 4.5;
+const floorNum = ~~num;
+console.log(floorNum);
+``````
+
+简写法
+
+
+
+### 指数幂简写语法
+
+另一个具有有用速记功能的数学函数是`Math.pow()`函数。使用内置数学对象的替代方法是`**`简写法。
+
+下面的例子演示了这种指数幂简写法的操作。
+
+``````javascript
+const num = Math.pow(3, 4);
+console.log(num);
+``````
+
+长写法
+
+``````javascript
+const num = 3 ** 4;
+console.log(num);
+``````
+
+简写法
+
+
+
+### TypeScript CONSTRUCTOR 简写法
+
+在TypeScript中，有一种创建类并通过构造函数为类属性赋值的实用代码技巧。当使用这种方法时，TypeScript将自动创建和设置类的属性。
+
+这个简写法是TypeScript独有的，在JavaScript类定义中是没有的。
+
+看一下下面的例子，看看TypeScript构造函数的作用。
+
+```typescript
+class Person {
+  private name: string;
+  public age: number;
+  protected hobbies: string[];
+
+  constructor(name: string, age: number, hobbies: string[]) {
+    this.name = name;
+    this.age = age;
+    this.hobbies = hobbies;
+  }
+}
+```
+
+长写法
+
+```typescript
+class Person {
+  constructor(
+    private name: string,
+    public age: number.
+    protected hobbies: string[]
+  ) {}
+}
+```
+
+简写法
+
+
+
+### 总结
+
+这些只是一些最常用的JavaScript和TypeScript实用代码技巧。请记住，使用这些技巧并不总是最好的选择；最重要的是写出干净、易懂的代码，让其他开发者可以轻松阅读。
+
+你最喜欢的JavaScript或TypeScript实用代码技巧是什么？请在评论中分享!
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
+
