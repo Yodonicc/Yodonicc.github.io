@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "了解JavaScript弱引用与垃圾回收"
-date: 2022-05-29 06:02:20 -0000
+date: 2022-05-30 06:02:20 -0000
 categories: frontend gc
 ---
 <!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
