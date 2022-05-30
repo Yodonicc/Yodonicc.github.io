@@ -1,0 +1,346 @@
+---
+layout: post
+title: "了解JavaScript弱引用与垃圾回收"
+date: 2022-05-30 06:02:20 -0000
+categories: frontend gc
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：[Frank Joseph](https://www.smashingmagazine.com/author/frank-joseph/)
+>
+> 原文链接：[Understanding Weak Reference In JavaScript](https://www.smashingmagazine.com/2022/05/understanding-weak-reference-javascript/)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> 在这篇文章中，Frank Joseph解释了JavaScript中的弱引用和强引用，以及可达性的概念。让我们深入了解一下!
+
+内存和性能管理是软件开发的重要方面，也是每个软件开发者都应该注意的。尽管很有用，但弱引用在JavaScript中并不经常使用。WeakSet和WeakMap是在ES6版本中被引入JavaScript的。
+
+### 弱引用
+
+澄清一下，与强引用不同，弱引用不会阻止被引用的对象被垃圾回收器回收，即使它是内存中对该对象的唯一引用。
+
+在进入强引用、`WeakSet`、`Set`、`WeakMap`和`Map`介绍之前，让我们用下面的片段来说明弱引用。
+
+```javascript
+// 创建一个WeakMap对象的实例。
+let human = new WeakMap():
+
+// 创建一个对象，并把它赋给一个叫做man的变量。
+let man = { name: "Joe Doe" };
+
+// 对human调用set方法，并向其传递两个参数（key和value）。
+human.set(man, "done")
+
+console.log(human)
+```
+
+上面代码的输出将是以下内容。
+
+```javascript
+WeakMap {{…} => 'done'}
+
+man = null;
+console.log(human)
+```
+
+`man`参数现在被设置为`WeakMap`对象。在我们将`man`变量重新赋值为`null`的时候，内存中对原始对象的唯一引用是弱引用，它来自我们之前创建的`WeakMap`。当JavaScript引擎运行一个垃圾回收过程时，`man`对象将从内存和我们分配给它的`WeakMap`中删除。这是因为它是一个弱引用，并不能阻止垃圾回收。
+
+看起来我们正在取得进展。让我们来谈谈强引用，然后我们将把一切联系起来。
+
+
+
+### 强引用
+
+JavaScript中的强引用是一种防止对象被垃圾回收的引用。它将对象保留在内存中。
+
+下面的代码片断说明了强引用的概念。
+
+```javascript
+let man = {name: "Joe Doe"};
+
+let human = [man];
+
+man =  null;
+console.log(human);
+```
+
+上面的代码的结果将是这样的。
+
+```javascript
+// 一个长度为1的对象数组。
+[{...}]
+```
+
+由于人的数组和对象之间存在强引用，所以不能再通过`man`的变量来访问该对象。该对象被保留在内存中，可以通过以下代码进行访问。
+
+``````javascript
+console.log(human[0])
+``````
+
+这里需要注意的是，弱引用并不能阻止一个对象被垃圾回收，而强引用可以阻止一个对象被垃圾回收。
+
+
+
+### JavaScript中的垃圾回收
+
+和每一种编程语言一样，内存管理是编写JavaScript时需要考虑的一个关键因素。与C语言不同，JavaScript是一种高级编程语言，在创建对象时自动分配内存，不再需要对象时自动清除内存。当对象不再被使用时清除内存的过程被称为垃圾回收。在谈论JavaScript中的垃圾回收时，几乎不可能不涉及到可达性的概念。
+
+#### 可达性（REACHABILITY）
+
+在一个特定的作用域中的所有值，或者在一个作用域中正在使用的值，在该作用域中被称为 "可达"，并被称为 "可达值"。可达的值总是存储在内存中。
+
+如果是这样的值就被认为是可达的：
+
+- 程序根部的值或从根部引用的值，如全局变量或当前执行的函数、其上下文和回调。
+- 通过引用或引用链可以从根部访问的值（例如，全局变量中的一个对象引用了另一个对象，而后者也引用了另一个对象——这些都被认为是可达值）。
+
+下面的代码片断说明了可达性的概念。
+
+```javascript
+let languages = {name: “JavaScript”};
+```
+
+这里我们有一个对象，它有一个键值对（名称为`JavaScript`），引用全局变量`languages`。如果我们通过给`languages`分配`null`来覆盖它的值...
+
+```javascript
+languages = null;
+```
+
+...那么这个对象就会被垃圾回收，而JavaScript的值就不能再被访问。下面是另一个例子。
+
+```javascript
+let languages = {name: “JavaScript”};
+
+let programmer = languages;
+```
+
+从上面的代码片断来看，我们可以从`languages`变量和`programmer`变量中访问对象属性。然而，如果我们把languages设置为null...
+
+```javascript
+languages = null;
+```
+
+
+...那么该对象将仍然在内存中，因为它可以通过`programmer`变量访问。简而言之，这就是垃圾回收的工作方式。
+
+注意：默认情况下，JavaScript的引用使用强引用。要在JavaScript中实现弱引用，你需要使用`WeakMap`、`WeakSet`或者`WeakRef`。
+
+
+
+### 比较Set和WeakSet
+
+一个集合对象是一个唯一值的集合，只有一次出现的机会。一个集合，像一个数组一样，没有键值对。我们可以用数组方法`for...of`和`.forEach`来迭代一个数组。
+
+让我们用下面的片断来说明这个问题。
+
+```javascript
+let setArray = new Set(["Joseph", "Frank", "John", "Davies"]);
+for (let names of setArray){
+  console.log(names)
+}// Joseph Frank John Davies
+```
+
+我们也可以使用`.forEach`迭代器。
+
+```javascript
+ setArray.forEach((name, nameAgain, setArray) =>{
+   console.log(names);
+ });
+```
+
+`WeakSet`是一个独特对象的集合。正如其名，`WeakSet`s使用弱引用。以下是`WeakSet()`的属性：
+
+- 它可能只包含对象。
+- 集内的对象可以在其他地方到达。
+- 它不能被循环使用。
+- 像`Set()`一样，`WeakSet()`有 `add`, `has`, 和 `delete`的方法。
+
+下面的代码说明了如何使用`WeakSet()`和一些可用的方法。
+
+```javascript
+const human = new WeakSet();
+
+let paul = {name: "Paul"};
+let mary = {gender: "Mary"};
+
+// 把名字为paul的人加入到教室中. 
+const classroom = human.add(paul);
+
+console.log(classroom.has(paul)); // true
+
+paul = null;
+
+// 教室将自动清理掉人类paul.
+
+console.log(classroom.has(paul)); // false
+```
+
+在第1行，我们创建了一个`WeakSet()`的实例。在第3行和第4行，我们创建了对象并把它们分配给各自的变量。在第7行，我们将`paul`添加到`WeakSet()`中，并将其分配到`classroom`变量中。在第11行，我们将`paul`的引用变为`null`。第15行的代码返回`false`，因为`WeakSet()`将被自动清理；所以，`WeakSet()`不会阻止垃圾回收。
+
+
+
+### 比较Map和WeakMap
+
+正如我们在上面关于垃圾回收的章节中所知道的，只要一个值是可达的，JavaScript引擎就会把它保留在内存中。让我们用一些片段来说明这一点。
+
+```javascript
+let smashing = {name: "magazine"};
+// 可以从引用中访问该对象.
+
+// 重新赋值引用的 smashing.
+smashing = null;
+// 该对象不能再被访问.
+```
+
+当数据结构在内存中时，数据结构的属性被认为是可达的，而且它们通常被保存在内存中。如果我们将一个对象存储在一个数组中，那么只要数组在内存中，即使该对象没有其他的引用，仍然可以被访问。
+
+```javascript
+let smashing = {name: "magazine"};
+
+let arr = [smashing];
+
+// 重写引用.
+smashing = null;
+console.log(array[0]) // {name: 'magazine'}
+```
+
+即使引用被覆盖了，我们仍然能够访问这个对象，因为这个对象被保存在数组中；因此，只要数组还在内存中，它就被保存在内存中。因此，它没有被垃圾回收。由于我们在上面的例子中使用了数组，我们也可以使用`map`。当`map`仍然存在时，存储在其中的值就不会被垃圾回收了。
+
+```javascript
+let map = new Map();
+
+let smashing {name: "magazine"};
+
+map.set(smashing, "blog");
+
+// 重写引用.
+smashing = null;
+
+// 访问该对象.
+console.log(map.keys());
+```
+
+像一个对象一样，`map`可以保存键值对，我们可以通过键来访问值。但是对于`map`，我们必须使用`.get()`方法来访问值。
+
+根据Mozilla开发者网络的说法，`Map`对象持有键值对，并记住键的原始插入顺序。任何值（包括对象和[原始值](https://developer.mozilla.org/en-US/docs/Glossary/Primitive)）都可以作为键或值使用。
+
+与`map`不同的是，`WeakMap`持有一个弱引用；因此，如果这些值在其他地方没有被强引用，它就不能阻止垃圾回收删除它所引用的值。除此以外，`WeakMap`和`map`是一样的。由于弱引用，`WeakMaps`是不可枚举的。
+
+对于`WeakMap`，键必须是对象，而值可以是数字或字符串。
+
+下面的片段说明了WeakMap的工作原理和其中的方法。
+
+```javascript
+// 创建一个weakMap。
+let weakMap = new WeakMap();
+
+let weakMap2 = new WeakMap();
+
+// 创建一个对象。
+let ob = {};
+
+// 使用设置方法。
+weakMap.set(ob, "Done");
+
+//可以将该值设置为一个对象，甚至是一个函数。
+weakMap.set(ob, ob)
+
+// 您可以将值设置为未定义。
+weakMap.set(ob, undefined);
+
+// WeakMap也可以是值和键。
+weakMap.set(weakMap2, weakMap)
+
+// 要获得数值，请使用get方法。
+weakMap.get(ob) // Done
+
+// 使用has方法。
+weakMap.has(ob) // true
+
+weakMap.delete(ob)
+
+weakMap.has(ob) // false
+```
+
+
+在`WeakMap`中使用对象作为键且没有其他引用的一个副作用是，在垃圾回收时它们会被自动从内存中删除。
+
+
+
+### WeakMap的应用范围
+
+`WeakMap`可以用于Web开发的两个领域：缓存和附加数据存储。
+
+#### 缓存
+
+这是一种[网络技术](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching)，包括保存（即存储）一个给定资源的副本，并在请求时将其送回。一个函数的结果可以被缓存，这样，每当函数被调用时，缓存的结果就可以被重新使用。
+
+让我们来看看这个例子。创建一个文件，命名为`cachedResult.js`，并在其中写入以下内容。
+
+```javascript
+let cachedResult = new WeakMap();
+ // 一个存储结果的函数。
+function keep(obj){
+  if(!cachedResult.has(obj){
+    let result = obj;
+    cachedResult.set(obj, result);
+  }
+  return cachedResult.get(obj)。
+}
+
+
+let obj = {name: "Frank"};
+
+let resultSaved = keep(obj)
+
+obj = null;
+
+// console.log(cachedResult.size); 用map可以，用WeakMap不行。
+```
+
+如果我们在上面的代码中使用了`Map()`而不是`WeakMap()`，并且对函数`keep()`进行了多次调用，那么它只会在第一次调用时计算出结果，而在其他时候则会从`cachedResult`中获取结果。其副作用是，只要不需要这个对象，我们就需要清理`cachedResult`。有了`WeakMap()`，一旦对象被垃圾回收，缓存的结果就会自动从内存中删除。缓存是提高软件性能的一个很好的手段——它可以节省数据库使用、第三方API调用和服务器到服务器请求的成本。通过缓存，一个请求的结果的副本被保存在本地。
+
+
+
+#### 附加数据存储
+
+`WeakMap()`的另一个重要用途是额外的数据存储。想象一下，我们正在建立一个电子商务平台，我们有一个统计访问者的程序，我们希望能够在访问者离开时减少计数。这个任务用`Map`来说要求很高，但用`WeakMap()`就很容易实现。
+
+```javascript
+let visitorCount = new WeakMap();
+function countCustomer(customer){
+   let count = visitorCount.get(customer) || 0;
+   visitorCount.set(customer, count + 1);
+}
+```
+
+让我们为这个例子创建客户端代码。
+
+```javascript
+let person = {name: "Frank"};
+
+// 对访问的人进行计数。
+countCustomer(person)
+
+// 人离开。
+person = null。
+```
+
+
+使用`Map()`，每当有客户离开，我们就必须清理`visitorCount`；否则，它将在内存中无限增长，占用空间。但是使用`WeakMap()`，我们不需要清理`visitorCount`；只要一个人（对象）变得不可达，它就会被自动收集垃圾。
+
+
+
+### 结语
+
+在这篇文章中，我们了解了弱引用、强引用和可达性的概念，并试图尽可能地将它们与内存管理联系起来。我希望你能发现这篇文章的价值。请随时发表评论。
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
+
