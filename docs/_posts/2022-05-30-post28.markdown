@@ -31,10 +31,10 @@ categories: frontend gc
 let human = new WeakMap():
 
 // 创建一个对象，并把它赋给一个叫做man的变量。
-let man = { name: "Joe Doe" };
+let man = { name: ‘Joe Doe’ };
 
 // 对human调用set方法，并向其传递两个参数（key和value）。
-human.set(man, "done")
+human.set(man, ‘done’)
 
 console.log(human)
 ``````
@@ -61,7 +61,7 @@ JavaScript中的强引用是一种防止对象被垃圾回收的引用。它将�
 下面的代码片断说明了强引用的概念。
 
 ``````javascript
-let man = {name: "Joe Doe"};
+let man = {name: ‘Joe Doe’};
 
 let human = [man];
 
