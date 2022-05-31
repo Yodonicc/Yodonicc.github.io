@@ -1,0 +1,251 @@
+---
+layout: post
+title: "收好61个前端热词清单，成为跟上潮流的前端仔"
+date: 2022-05-31 06:02:20 -0000
+categories: frontend slang
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：[Tapajyoti Bose](https://tapajyoti-bose.medium.com/?source=user_profile-------------------------------------)
+>
+> 原文链接：[61 Frontend Web Development Buzz Words every Developer Should have in their Vocabulary](https://tapajyoti-bose.medium.com/61-frontend-web-development-buzz-words-every-developer-should-have-in-their-vocabulary-8054e484875)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> 当你的朋友讨论前端Web开发时，你不想感到被冷落吗？这里有一份按字母顺序排列的61个流行语清单，让你看起来很酷（从基础知识到高级知识）。
+
+1. API
+   "应用程序接口Application Program Interface"的简称，是计算机和应用程序之间相互交流的方式。
+
+2. 应用 Application
+   通常缩写为 "app"，这些是指在执行功能的程序。可能指的是桌面、移动或甚至网络应用。
+
+3. 属性 Attribute
+   属性是用于控制HTML标签内元素行为的特殊词语。
+
+4. 临界点 Breakpoint
+
+   译者注：Breakpoint很容易被翻译成“断点”，但此处实际上指的是临界点。
+   不，它不是你觉得要打破一切的那个点......
+
+   这些是你的网站将调整以适应屏幕尺寸的点，以确保用户在该尺寸下观看网站有最好的体验。
+
+   <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image1.gif" style="max-width: 730px;" />
+
+5. 浏览器 Browser
+   你用来访问网络的程序--如Chrome、Firefox或Safari。
+
+6. Bootstrap
+   视情况而定。
+   Bootstrap一般是指一个免费的、开源的前端框架，用于设计网站和网络应用。
+   但偶尔也指代初始化一个项目（例如："这个应用是用create-react-app '初始化(Bootstrap)‘ 的"）。
+
+7. Bug
+   网站或应用程序中的一个错误或缺陷，使其不能按预期运行。
+
+   <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image2.jpeg" style="max-width: 730px;" />
+
+
+8. Cache 缓存
+   缓存是临时数据存储，在你第一次访问一个网站时，将相关信息存储在你的电脑上，从而帮助提高网站速度。由于有了缓存，当你再次访问该网站时，你的电脑不必重新加载所有的网站信息，因为它已经被保存了。
+
+9. CI/CD
+   CI/CD是一种通过在应用开发阶段引入自动化来频繁向客户交付应用的方法。归属于CI/CD的主要概念是持续集成、持续交付和持续部署。CI/CD是对整合新代码可能给开发和运营团队带来的问题的一种解决方案。
+
+10. Cookies
+    <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image3.gif" style="max-width: 730px;" />
+
+    不，我们不是在谈论世界上所有美好的、巧克力的和含糖的东西的来源...。
+
+    它是由互联网服务器发送至浏览器的数据。每次浏览器访问同一台服务器时，它都会将数据发送回来，作为跟踪它如何（以及如何经常）访问该服务器的一种手段。
+
+11. 爬虫 Crawl
+    这是搜索引擎使用的过程，包括向你的网站发送一个机器人，以收集存在和不再存在的网页信息，并根据其收集的信息更新其数据库。这是获得搜索引擎索引并被发现的必要条件。
+    <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image4.gif" style="max-width: 730px;" />
+
+
+12. CSS选择器 CSS Selectors
+    一个CSS选择器可以选择你想要样式的HTML元素。常用的选择器使用HTML类、ID和标签；但也有大量复杂的选择器，可以用来细化选择元素。
+
+13. CSS属性 CSS Property
+    由CSS决定的特性，如配色方案和字体。
+
+14. 行为召唤 CTA
+    行为召唤（Call to Action）的简称。这些是你的网站上的元素（一般是按钮），推动某些转换或目标，如捐款、通讯注册或用户注册。
+
+15. 调试 Debugging
+    还记得我们谈到的那些bug吗？嗯，调试是识别和处理它们的过程。
+    <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image5.gif" style="max-width: 730px;" />
+
+
+16. 部署 Deployment
+    部署是使软件系统可供使用的所有活动的组合。
+
+17. 文档 Documentation
+    文档基本上是参与管理、维护或使用一个网站或软件的人的中心参考点，它提供了关于需求、架构和设计、技术特性、最终用户信息的信息。
+
+18. DOM
+    文档对象模型（Document Object Model）是一个跨平台和独立于语言的接口，它将XML或HTML文档视为一个树状结构，其中每个节点是一个代表文档一部分的对象。DOM用一个逻辑树来表示一个文档。
+
+19. 域名 Domain
+    在浏览器中输入一个网站的地址。
+
+20. 网站图标 Favicon
+
+    译者注：也被称作website icon（网站图标）、page icon（页面图标）或urlicon（URL图标）。
+    是 "最喜欢的图标(favorite icon)"的简称，它是出现在你的网站的浏览器标签中的图标。
+
+21. 首次内容绘制 First Contentful Paint
+    简称FCP，它衡量用户浏览你的网页后，浏览器渲染第一块DOM内容所需的时间。
+
+22. 字段 Fields
+
+    <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image6.png" style="max-width: 730px;" />
+
+    数据收集的最基本构件。这些是你的网站访问者用来输入他们的姓名、电子邮件地址、笔记等的存储单元。
+
+23. 折页 Fold
+    在网站设计中，"折页"也被用来指网页中无需滚动就能看到的部分。由于屏幕尺寸变化很大，因此没有折页的固定像素数。
+24. 框架 Framework
+    框架的发明是为了使建设网站的过程更快、更容易。你可以把框架看成是一个解决方案、工具和组件的集合，你可以在一个中心位置访问它们--而不是每次都单独寻找它们。
+25. Git
+    Git是一个版本控制系统，开发者可以在这里存储和管理他们的代码。
+26. GitHub
+    GitHub是Git的一个云界面，它也提供自己的功能，如错误跟踪、任务管理和项目维基。
+    <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image7.png" style="max-width: 730px;" />
+
+
+27. 十六进制(颜色代码) Hex
+    十六进制颜色代码是最常用的颜色编码系统，它提供的数值可以告诉显示器要显示多少颜色。
+
+28. 超文本标记语言 HTML
+    "超文本标记语言" 在形式和功能方面用于建立网站的编码语言。
+
+29. 超文本传输（或转移）协议 HTTP
+    超文本传输（或转移）协议，万维网上使用的数据传输协议。
+
+30. HTTPS
+    基本上与HTTP相同，但使用加密方法，以确保传入和传出网页的数据。
+    <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image8.png" style="max-width: 730px;" />
+
+
+31. iFrame
+    用于将一个网站嵌入另一个网站的HTML元素。
+
+32. JavaScript
+    JavaScript是一种客户端语言，网页开发者用它来增加网页的自动化、动画和互动性。
+
+33. 最大内容绘制 Largest Contentful Paint
+    最大内容绘制（LCP）是一个性能指标，用于衡量最大的内容元素在屏幕上呈现所需的时间。
+
+34. 库 Libraries
+    库是一组有意义的模块，它们可以在一个程序或另一个库中使用。一个包是一个分发单位，它可以包含一个库或一个可执行文件，或两者都包含。
+
+35. 灯塔 Light House
+    灯塔是一个开源的、自动化的工具，用于测试和提高网页的质量。
+    <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image9.gif" style="max-width: 730px;" />
+
+
+36. 元标签 Meta Tag
+    网页或元素上的附加信息，如一段内容在谷歌搜索结果中的显示方式，一张图片的照片来源等。
+
+37. 最小化 Minification
+
+    译者注：Minification应该被理解为“最小化”，而不是“压缩”，不必要字符通常包括空白符、换行符、注释、块分隔符（比如大括号），它们只是用于增加代码的可读性，执行的时候是非必须的，都可以删掉。
+    最小化是指将代码和标记最小化以减少文件大小的过程。例如，在创建一个HTML文件时，开发人员很可能会使用间距、注释和变量，以使代码在工作中更易读。一旦网页准备上线，为了最小化代码，开发人员将删除这些注释和空格，以确保更快的页面加载时间。
+
+38. 移动端优先 Mobile-first
+    移动端优先是一种优先考虑移动设备的网页设计和开发方法。在移动优先的方法下，网站首先是为小屏幕建立的，而不是在建立网站时考虑到桌面，然后再考虑它在移动设备上的外观。
+    <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image10.jpeg" style="max-width: 730px;" />
+
+
+39. 最小可行产品 MVP
+    最小可行产品（Minimum Viable Product）的简称，指的是可以发布到市场上的最精简的产品版本。
+
+40. 导航栏 Navigation
+    一个网站上指向其他页面的链接。一般见于网站顶部的菜单或页脚。
+
+41. NPM
+    JavaScript运行环境Node.js的默认包管理器。
+
+42. 开头/结尾标签 Opening/Closing Tags
+    角括号(<>)，用于给HTML元素加书，帮助建立网页的结构。闭合标签包括一个正斜杠（</>）。
+
+43. Promises
+    <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image11.gif" style="max-width: 730px;" />
+
+    Promise对象表示一个异步操作的最终完成（或失败）及其结果值。
+
+44. 重定向 Redirects
+    重定向是指当一个网页在某个URL被访问时，它被改变为一个不同的URL。
+
+45. 分辨率 Resolution
+    分辨率是用来描述图像或屏幕的大小的一种度量。
+
+46. 响应式设计 Responsive Design
+    响应式设计确保无论用户在什么设备上浏览网站，都能正确显示。
+
+47. SAAS
+    软件即服务（或称SaaS）是一种在互联网上作为一种服务提供应用程序的方式。
+
+48. 搜索引擎优化 Search Engine Optimization
+    <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image12.png" style="max-width: 730px;" />
+
+    简称为SEO，是创建和修改内容以在搜索引擎上获得最佳可见度的过程。
+
+49. 语义化HTML Semantic HTML
+    语义HTML是指使用HTML标记来加强网页和网络应用中信息的语义或意义，而不仅仅是定义其表现形式或外观。
+
+50. 服务器 Server
+    运行软件的计算机，允许用户访问你的网站，并为其提供托管服务。
+
+51. 服务端渲染 Server-Side Rendering
+    服务端渲染（SSR）是一个应用程序将服务器上的HTML文件转换为客户端的完全渲染的HTML页面的能力。
+
+52. 网站地图 Sitemap
+    一个网站上所有页面的概要，按层次顺序组织。
+    <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image13.jpeg" style="max-width: 730px;" />
+
+
+53. 跑马灯 Slider
+
+    译者注：这里原作者用的Slider，但译者建议把跑马灯的英文记忆成Carousel。
+    跑马灯通常由图片或卡片组成，突出不同的照片、链接和内容。
+
+54. SVG
+    将数字图像表示为矩形、线条和其他几何实体，从而使图像可以扩展到任何尺寸。
+
+55. TypeScript
+    JavaScript的一个严格的语法超集，并为语言增加了可选的静态类型。
+
+56. UI
+    UI是指访问者和计算机之间的交互界面。
+    <img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post29image14.jpeg" style="max-width: 730px;" />
+
+
+57. 用户体验 UX
+    用户与用户界面的互动，重点是体验的满意程度和成功程度。
+
+58. 微件 Widgets
+
+    译者注：Component是更加广义抽象的概念，而Widget是更加具体现实的概念。所以Component的范围要比Widget大得多，通过Component是由多个Widget组成。Component和Widget的目的都是为了模块化开发。
+    为一个或多个不同的软件平台制作的相对简单和易于使用的软件应用程序或组件。
+
+59. 线框 Wireframe
+    展示网页结构和内容的视觉指南，没有任何设计元素。这有助于将注意力集中在内容的布局和层次上，而不会被设计分散注意力。
+
+60. WYSIWYG
+    代表 "所见即所得（What You See is What You Get）"。它是一个可视化的内容编辑器，允许你将内容修改为富文本（具有格式化的文本）。
+
+61. Yarn
+    Yarn是一个包管理器，就像NPM一样，同时也是一个项目管理器。
+
+欢迎大家补充^_^
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
