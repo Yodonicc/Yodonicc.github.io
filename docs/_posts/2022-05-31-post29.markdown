@@ -244,8 +244,6 @@ categories: frontend slang
 61. Yarn
     Yarn是一个包管理器，就像NPM一样，同时也是一个项目管理器。
 
-欢迎大家补充^_^
-
 
 
 注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
