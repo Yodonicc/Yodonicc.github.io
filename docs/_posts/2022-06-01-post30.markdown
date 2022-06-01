@@ -1,0 +1,226 @@
+---
+layout: post
+title: "破茧重生！重新定义Chrome开发者工具"
+date: 2022-06-01 06:02:20 -0000
+categories: frontend devtools
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：[Patrick Brosset](https://www.smashingmagazine.com/author/patrickbrosset/)
+>
+> 原文链接：[What’s That (Dev) Tool?](https://www.smashingmagazine.com/2022/05/whats-that-dev-tool/#comments-whats-that-dev-tool)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> 在日常的网络开发中，你通常使用多少个浏览器DevTools面板？一个？三个？可能没有那么多。在这篇文章中，Patrick Brosset将聚光灯对准了一些人们不使用甚至不知道的工具。让我们深入了解一下!
+
+你有没有看过DevTools工具箱里还有什么其他的工具可供你使用？你可能在重复使用同样的几个面板--我知道我是这样的！但是，你知道吗？
+
+事实证明，在Chrome DevTools（以及其他基于Chromium的浏览器，如Edge）中，有超过30个（30个啊！）单独的面板。Safari和Firefox的面板较少，但仍可能比你在任何一天使用的都多。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post30image1.png" style="max-width: 730px;" />
+
+当我意识到这一点时，我想到了一个愚蠢的游戏，你可以尝试在一分钟内命名尽可能多的面板。在[这里(那是什么工具？)](https://patrickbrosset.com/lab/2022-05-13-whats-that-tool/)玩吧，试试你的运气。（不要作弊，好吗）
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post30image2.png" style="max-width: 730px;" />
+
+当然，这个游戏是很傻的。作为一个网络开发者，记住DevTools中每一个工具的确切名称并不重要。更重要的是在需要时知道如何使用这些工具。
+
+但这个游戏确实证明了一个观点：有很多工具比人们使用的甚至知道的还要多。这个游戏的整个目标是--当一分钟过去，完整的列表显示出来的时候--意识到，"哇，这有很多工具，我甚至不知道它们的存在。"
+
+那么，为什么有这么多？让我们面对现实吧，DevTools被按钮、标签和功能塞得满满的。我们是怎么走到这一步的，有没有出路？
+
+
+
+### 一个爆炸性的故事
+
+在21世纪初，网络开发与现在非常不同。那时，大部分的复杂性在于从你的服务器生成正确的HTML代码。浏览器的 "查看源代码 "功能足以调试奇怪的表格`colspan`问题。当时，JavaScript在网络上才刚刚起步，CSS也远没有现在这样功能齐全的语言。
+
+因此，除了老式的`alert()`调试技巧之外，我们用于前端代码调试的少数工具也非常专业；它们只做一件事。[Venkman](https://www-archive.mozilla.org/projects/venkman/) 只做JavaScript调试，[Aardvark](https://www.karmatics.com/aardvark/) 专注于检查元素，而[Console2](https://addons.thunderbird.net/en-us/firefox/addon/console²/) 显示漂亮的JavaScript日志信息。
+
+[Joe Hewitt](https://en.wikipedia.org/wiki/Joe_Hewitt_(programmer)) 把所有这些都集中在一个叫做[Firebug](https://getfirebug.com/) 的工具下，这是一个Firefox扩展。这对全世界的网络开发者来说绝对是一场革命。2010年左右，Firebug可能是最常用的前端调试工具，而Firefox是一个占主导地位的浏览器。很牛了! 对吗？
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post30image3.png" style="max-width: 730px;" />
+
+即使你从来没有使用过Firebug，而且是在最近才开始你的Web开发之旅，我也愿意打赌这个用户界面感觉很熟悉。
+
+尽管我们现在使用的DevTools与Firebug以前的样子没有什么不同，但感觉那时我们需要担心的事情比较少，因此，需要帮助他们的工具也比较少。
+
+正如上面的截图所示，当时的工具根本就不多：
+
+- 控制台用于查看日志和执行JavaScript。
+- HTML标签，用于查看和编辑页面的DOM和应用的CSS样式。
+- JavaScript调试器。
+- 网络选项卡用于检查下载的资源和HTTP请求。
+
+快进到15年后的今天。我们使用的浏览器工具的用户界面没有什么变化，但面板的数量却激增了！这就是我们的浏览器。以下是Chrome DevTools中引入新面板的快速和不完整（而且非常近似）的历史：
+
+
+
+| 年份 | 面板                                                    |
+| ---- | ------------------------------------------------------- |
+| 2008 | 控制台、元素、来源、网络、JavaScript分析器              |
+| 2010 | 性能（当时称为时间线）                                  |
+| 2013 | 渲染、图层                                              |
+| 2014 | CSS概述、网络条件                                       |
+| 2015 | 安全性、内存                                            |
+| 2016 | 动画                                                    |
+| 2017 | 覆盖率, Lighthouse (当时叫审计), 性能监控, 网络请求阻断 |
+| 2018 | 变化, 可访问性                                          |
+| 2020 | 媒体、WebAuthn、WebAudio、Issues                        |
+| 2021 | 内存检查器、记录器                                      |
+| 2022 | 性能面板                                                |
+
+有许多原因导致新面板的数量不断增加。其中一些是好的，而另一些则更值得怀疑：
+
+- 网络平台可用的功能和API的数量在不断快速增加。现在，与15年前相比，网络开发者在网络上能做的事情多了很多。其中有些东西不容易用我们当时的4、5个工具来调试，因此它需要DevTools中的新面板。
+- 我们的学科比过去要发达得多。前端网络开发在15年前也许被认为是不那么有趣或重要的。现在，它已经被证明是一个更深入的计算机工程领域，不仅需要编程知识，还需要性能优化、可访问性、用户体验、渐进式增强等等。
+- 这些东西有时往往也需要专门的工具。为浏览器和开发工具编写代码的人本身也需要工具，有时它们最终会成为新的面板。Chromium中的[协议监控面板](https://developer.chrome.com/blog/new-in-devtools-92/#protocol-monitor)就是一个很好的例子。
+- 删掉东西真的很困难! 如果你这样做，你一定会破坏人们的工作流程。所以，事情往往会随着时间的推移而积累起来。例如，Chrome有三个工具来做性能优化。性能，性能洞察，和JavaScript分析器。
+- 最后，似乎有一种普遍的趋势，即增加新的东西，而不是改善已经存在的东西。我明白；对大多数人来说，建立新的东西比修复错误更令人兴奋。但是在很长一段时间内，这往往会使软件变得更加复杂。而这很可能也在DevTools中起了作用。
+
+在任何情况下，我们现在在这里，可能是任何应用平台所梦想的最先进的工具套件之一。但它也是最复杂的工具之一，没有人充分使用它的潜力。
+
+
+
+### 这是个问题吗
+
+是的! 简单地说，DevTools是一个非常复杂的产品，它的用户界面可能很吓人。
+
+其他产品有五个主要的用户场景，而DevTools有几十个，甚至几百个。你需要模拟一个移动屏幕吗？检测颜色对比度？字体单位之间的转换？查看JSON响应？DevTools可以做到这一切! 而这些仅仅是一些随机的例子。
+
+所以，有了这么多的选项和功能，用户界面复杂到新用户在第一次使用时就会感到非常不知所措，这并不奇怪。但是，即使是有经验的用户也不一定知道在他们习惯的那几个面板之外还有什么可用。
+
+在我看来，这已经开始成为一个严重的可用性问题，这个问题有时可能会让新人在学习的过程中感到气馁。今天来到DevTools的人可能已经习惯了更新的开发产品，这些产品更容易使用。数字工具领域正朝着这个方向发生着巨大的变化，而浏览器DevTools还没有开始行动。
+
+这也不是一个简单的问题要解决。就像我之前说的，有一些真正的理由让我们需要大量的专门工具。所以，复杂性是需要的，但我认为它应该是选择进入的，而不是选择退出的!
+
+的确，DevTools的学习曲线变得非常陡峭，因为从一开始就有这么多信息呈现给用户，人们必须学会忽略他们不知道或认为他们不需要的部分。
+
+
+
+### 为什么我们不把它全部清理掉
+
+嗯，这很复杂。在DevTools中建立了许多用户场景，而且可能有很多工作流程，因为有很多人在使用DevTools。即使是很少使用的工具在这里也是有原因的，而使用它们的少数人可能会依赖它们。
+
+根据我在DevTools工作的经验，为了使代码库更容易工作而删除旧的/未维护的/很少使用的面板总是被证明是一个坏主意，特别是在没有足够的客户研究的情况下。
+
+事实上，当我在Firefox工作时，我们曾尝试在Firefox DevTools中[删除字体面板](https://bugzilla.mozilla.org/show_bug.cgi?id=1247723)，结果反应相当迅速和强烈--以至于我们把它放了回去。我们缺乏必要的客户理解，不知道这个工具是如何被使用的，以及它支持哪些独特的场景。
+
+2016年，3D视图面板[不得不被移除](https://bugzilla.mozilla.org/show_bug.cgi?id=937166#c16)，因为新的（当时的）火狐架构不再支持它了。时至今日，六年多过去了，人们仍然在抱怨它的消失（注意，你仍然可以在Edge中[使用它](https://docs.microsoft.com/en-us/microsoft-edge/devtools-guide-chromium/3d-view/)）！这也是一个很好的例子。
+
+最后一个例子，Chrome团队在2020年[删除了属性侧边栏窗格](https://developer.chrome.com/blog/new-in-devtools-84/#properties)，但后来在看到人们对它的需求后又将其添加了进来。
+
+单纯的使用数字并不能很好地衡量一个工具的价值。有些工具可能只有少数人使用，但他们可能依赖这些工具来完成他们的工作。为了能够简化产品，需要进行适当的用户研究，了解各种用户角色和场景（DevTools有很多这样的用户！）。
+
+
+
+### 出路
+
+我想提出两个方向，我认为在改善DevTools的状况方面有很大的潜力。
+
+1. 简化DevTools的核心，并向更强大的扩展开放，这样用户就可以制作自己的工具。
+2. 勇于承担风险，建立一个彻底的用户友好型用户界面。
+
+
+
+### 一个强大而简单的核心，并通过扩展来提升
+
+[**Visual Studio Code**](https://code.visualstudio.com/)是一个非常了不起的产品! 许多人都在使用它，而不仅仅是网络开发者。它建立在一个非常强大的核心上，可以被极大地扩展。
+
+这样一来，从事VS Code工作的人就不必担心人们可能需要的所有功能。VS Code有点像DevTools，因为没有两个人有相同的需求和工作流程，而且有数百种使用该产品的方法。
+
+因此，团队的工作是建立一个坚实的基础，允许基本的编辑，并以扩展API为基础，让其他人深入挖掘平台，增加额外的功能。
+
+这样做有很多好处，但我特别感兴趣的一点是，复杂性是可以选择的。当你第一次安装VS Code时，它并不令人感到压抑。它是一个文本编辑器，你可以一开始就用它来编辑文本。但如果你的项目有特殊需要，比如检查代码质量或做一些自定义的语法高亮，那么你可以安装所有你想要的花哨的扩展，获得你需要的额外功能。
+
+VS Code的扩展API真正深入到你可以定制编辑器的程度，我相信这是它成功的主要原因。
+
+然而，DevTools的构建方式不同。你也可以在浏览器中安装扩展，为DevTools添加新的面板，但在主要框架的扩展之外，并没有很多有用的扩展（例如[React](https://github.com/facebook/react/tree/main/packages/react-devtools-extensions)）。从事DevTools工作的团队是几乎做了一个网络开发者可能需要的所有工具。
+
+通过使用[浏览器扩展API](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions)，在DevTools中创建一个新的面板并不难，但API并不像VS Code中那样先进。特别是，没有办法扩展现有的工具以增强其功能。这是一个严重的限制，我认为这是造成我们所掌握的有用的扩展数量少的原因。
+
+举个例子，惊人的[Motions DevTools扩展](https://motion.dev/tools)允许你在网上查看和编辑动画。但它仅限于自己的面板容器，不能与旁边的Elements面板整合，而Elements面板对于简化用户的工作流程和重新使用现有的组件（如颜色选择器）是很有用的。
+
+我相信我们需要走得更远。我们需要一套更强大的API，让我们有可能创建一些人可能需要的专门功能，而不需要为其他人复杂化默认的DevTools体验。
+
+[可扩展网络宣言](https://github.com/extensibleweb/manifesto)（Extensible Web Manifesto）与这种方法非常相似。它主张为第三方开发者提供低级别的功能，以创建他们自己的体验，如果这些体验被证明是受欢迎的，也许有一天会成为核心的一部分。
+
+
+
+### 冒着风险，设计一个根本性的用户友好型UI
+
+另一个非常需要的向前发展和提高我们的DevTools的地位的方法是愿意承担一些风险，大胆一点，测试新的UI想法。
+
+正如我在介绍中所说，DevTools的结构在大约15年内没有真正改变。我认为我们至少应该进行一些重新设计。我们需要把用户界面带到2020年，开始使用更现代的界面模式，并使整体体验不那么令人生畏。
+
+在苹果公司从事Safari Web检查器工作的人在2013年左右尝试了类似的东西。他们应用了其他产品的一些设计原则，如XCode或iTunes，试图简化他们的DevTools工具条。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post30image4.png" style="max-width: 730px;" />
+
+虽然他们现在又回到了更传统的标签式导航，这似乎对开发者来说效果更好，但我很欣赏这种早期的尝试，即制作一个更友好的界面，也更符合人们当时的认知。
+
+这也说明，在DevTools的用户界面变化的过程中，需要非常特别的小心翼翼来带动开发者。
+
+这让我想到了现在正在开发Edge DevTools的团队（完全公开，我是这个团队的一员）。我相信这是目前唯一一个在这个领域做事情的团队。
+
+我们目前的实验被称为 "[焦点模式](https://docs.microsoft.com/microsoft-edge/devtools-guide-chromium/experimental-features/focus-mode)"，它实际上是重新设计整个DevTools产品用户界面的第一次尝试。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post30image5.png" style="max-width: 730px;" />
+
+专注模式对微软Edge的Canary和Dev预发布频道的DevTools用户可用，方法是[在DevTools设置中启用 "专注模式 "实验](https://docs.microsoft.com/en-us/microsoft-edge/devtools-guide-chromium/experimental-features/focus-mode#enable-focus-mode)。这些渠道的大多数用户事实上应该已经打开了，因为我们的团队正在逐步推出该功能，并听取用户的反馈，以确保这不会对现有的工作流程造成干扰，而且是一个受欢迎的变化。
+
+基于这些反馈，我们将继续向Beta渠道的用户推出聚焦模式，并最终向Edge的正常发布版本推出。
+
+现在，它可能一开始并不像一个大的变化，但这只是创建一个更易接近的用户界面的迭代方法的第一步。同样，在这个产品中改变东西是很复杂的，所以我们的团队正在慢慢进行。
+
+但是，如果你仔细观察，用户界面有几个主要的变化，试图使事情不那么杂乱，更加精简。
+
+最明显的变化是位于顶部的工具栏。这里有一个动画，显示了有和没有焦点模式的工具栏的对比。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post30image6.gif" style="max-width: 730px;" />
+
+- 警告、错误和信息列表现在从工具栏上消失了，取而代之的是，它以彩色徽章的形式出现在控制台和问题面板标签上，消除了一些杂乱无章的现象。
+- 设置、反馈和主菜单图标已被归入右上角的一个菜单按钮中，进一步减少了杂乱。
+- 标签现在有了图标，所以它们更容易被看到和区分。
+
+这里还有一些与焦点模式有关的东西。
+
+工具栏中的 "+"按钮显示了所有可用的工具及其图标，使你更容易重新打开你之前关闭的工具，也许更有吸引力去尝试你还没有尝试过的工具。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post30image7.png" style="max-width: 730px;" />
+
+也可以将标签切换到垂直方向。定位在左边并隐藏标签进一步减少了窗口中央部分的噪音，让你专注于代码。此外，它与人们在其他工具中逐渐习惯的UI模式相匹配（例如，VS Code中的活动栏或Edge中的垂直标签）。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post30image8.png" style="max-width: 730px;" />
+
+最后，DevTools中的"抽屉"被重新设计了。抽屉是用户界面的一个区域，当你按下键盘上的Esc键时，它出现在底部，通常包含控制台。
+
+它的出现是为了让你在使用其他工具的同时也能访问控制台，现在所有的浏览器的开发工具都有这个功能。但是多年来，Chrome团队在抽屉里添加了越来越多的东西，特别是那些有用但还没有普及到可以在主标签栏上占有一席之地的次要工具（例如，渲染面板就被添加在那里）。
+
+我认为现在已经到了很难确定哪个区域有哪个工具的程度了。Edge--有了焦点模式--正在采取不同的方法。抽屉现在被称为快速视图，在工具箱的底部始终可见（所以你甚至不需要知道按`Escape`），可以用来显示你想要的任何工具。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post30image9.png" style="max-width: 730px;" />
+
+我对Focus Mode的发展方向感到非常兴奋，我已经迫不及待地想让我们的团队开始探索这个领域的下一步了。
+
+如果你想尝试一下焦点模式，请确保你有一份[Edge](https://www.microsoft.com/edge)的副本（如果你喜欢最新的变化，你也可以得到一个[预发布版本](https://www.microsoftedgeinsider.com/en-us/download)），打开DevTools，如果你还没有打开它，请按`F1`，然后进入实验，勾选焦点模式的方框。
+
+让团队知道你对它的看法--如果你有其他想法--通过在我们的[DevTools GitHub仓库](https://github.com/MicrosoftEdge/DevTools)中提交新的问题。
+
+我相信，一个用户友好的DevTools，既欢迎学习者，又包容每个人的需求，是有可能的，而且我们可以一起把它变成现实。作为一个社区，让我们对我们友好的DevTools团队提出更多的要求吧
+
+有全职的DevTools产品工程团队为每个浏览器供应商工作。他们不断地添加新的功能和修复错误，但他们只能在我们的集体帮助下才能做好工作。
+
+如果用户界面不适合你，请告诉他们。让他们知道你最常见的工作流程。你需要多少次点击？你是否经常忘记东西在哪里？你是否希望事情以不同的方式命名？像这样的输入可以导致改变，为数以百万计的用户带来很大的不同。
+
+如前所述，我们正在积极寻求对这项实验和其他DevTools功能的反馈。你可以在我们的[GitHub仓库](https://github.com/MicrosoftEdge/DevTools/)中留下评论。其他浏览器也希望听到关于他们的DevTools的反馈，你可以在[Mozilla bugzilla追踪器](https://bugzilla.mozilla.org/)（Firefox）、[Chromium bug追踪器](https://bugs.chromium.org/p/chromium/issues/list)（Chrome）和[WebKit bugzilla追踪器](https://bugs.webkit.org/)（Safari）上进行。
+
+谢谢你的阅读! 下回见。
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
