@@ -1,0 +1,211 @@
+---
+layout: post
+title: "你不知道的SVG"
+date: 2022-06-02 06:02:20 -0000
+categories: frontend svg
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> 作者：[Cosima Mielke](https://www.smashingmagazine.com/author/cosima-mielke/)
+>
+> 原文链接：[Magical SVG Techniques](https://www.smashingmagazine.com/2022/05/magical-svg-techniques/)
+>
+> 译者：[Yodonicc](https://github.com/Yodonicc)
+>
+> 智能SVG技术，从生成性SVG网格到带蒙版的SVG路径、颗粒状SVG梯度渐变、切割效果和SVG五星制打分效果。让我们来看看一些神奇的SVG技术，你可以马上使用。
+
+在过去的几年里，SVG已经变得越来越流行。这是有原因的。它们是可扩展的、灵活的，而且最重要的是，是轻量级的。而且，它们所提供的东西甚至比你想象的还要多。我们最近发现了一些神奇的SVG技术，我们很愿意与你分享。从SVG网格、SVG五星制打分效果到SVG蒙版、花哨的颗粒状SVG梯度渐变，以及方便的SVG工具。我们希望你会在这里找到有用的东西。
+
+> 顺便说一下，不久前，我们还研究了[SVG生成器](https://www.smashingmagazine.com/2021/03/svg-generators/)--从形状和背景到SVG路径可视化工具、裁剪工具以及SVG → JSX生成器等所有东西。如果你正在处理SVG，这些也可能会派上用场。
+
+
+
+### 生成性SVG网格
+
+自动生成艺术画作对于每一个喜欢创造艺术画作但又觉得在代码中更自在的人来说是一个绝好的机会。比方说，你想创造几何图案，生成艺术画作将解决你的选择困难症。我使用什么形状？我把它们放在哪里？以及我应该使用什么颜色？如果你想尝试一下，Alex Trost写了一篇关于[用SVG网格创建生成艺术画作的教程](https://frontend.horse/articles/generative-grids/)，它一定会激发你的创造力--并让你对SVG有更多了解。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image1.png" style="max-width: 730px;" />
+
+Alex创建的生成艺术是一个由行和列数量随机的块组成的网格。每个块都有一个随机选择的设计和来自共享调色板的颜色。亚历克斯带你一步步走过这个作品的编码过程：从设置网格和创建孤立的函数来绘制SVG，到使用调色板，添加动画，等等。一个有趣的小项目，作为你入门生成艺术和创意编码的绝佳教程。
+
+
+
+### 生成式景观卷轴
+
+一个令人敬畏的项目在一个世纪的传统和最先进的编码之间架起了桥梁，它就是[{山，水}](https://github.com/LingDong-/shan-shui-inf)。该项目由黄凌东创建，灵感来自于中国传统的山水卷，它以SVG格式创建了程序生成的、无限滚动的中国风景。景观中的山和树都是用噪音和数学函数从头开始建模的。令人着迷!
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image2.png" style="max-width: 730px;" />
+
+生成艺术项目{山，水}的灵感来自中国传统山水画。
+
+现在，如果你问自己这么复杂的东西是如何工作的，你并不第一个这么想的人。维克多-谢佩列夫也想要了解{山，水}*背后的秘密，并将其作为自己的练手项目，以了解其如何工作。而且，确实，他花了24天时间来完全挖掘代码。他在[一系列的文章](https://zverok.github.io/blog/2021-12-28-grok-shan-shui.html)中总结了他的发现。
+
+
+
+### 带有纹理的SVG路径
+
+与光栅图像相比，SVG有很多好处。它们体积小、可扩展、可做动画、可以用代码编辑，还有很多其他的优点。不过，你无法获得光栅图像所能提供的纹理感觉。然而，我们可以结合矢量和光栅的优势来创造一些迷人的效果。就像Tom Miller在他的 [Silkscreen Squiggles](https://codepen.io/creativeocean/pen/abLGMwv)演示demo中做的那样。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image3.png" style="max-width: 730px;" />
+
+在SVG中添加画笔效果？一个小技巧让它成为可能。
+
+Silkscreen Squiggles是一个动画，在这个动画中，方块字充满了一个矩形的画布。让这些方块字变得特别的是，它们看起来有一种画笔的质感。秘诀是：一个带有阿尔法层的遮罩，使简单的方块字路径具有纹理。Alex Trost[剖析了它是如何工作的](https://frontend.horse/articles/painting-svg-paths-with-masks/)。鼓舞人心!
+
+
+
+### 颗粒状的梯度渐变
+
+噪点是一种简单的技术，可以为图像添加纹理，使原本的纯色或平滑的渐变更加逼真。但是，尽管设计师对质感情有独钟，噪点在网页设计中却很少使用。Jimmy Chion探讨了我们[如何只用少量的CSS和SVG就能为渐变添加纹理](https://css-tricks.com/grainy-gradients/)。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image4.png" style="max-width: 730px;" />
+
+用颗粒状的SVG渐变实现了一个迷人的全息类型的效果。
+
+诀窍是使用SVG滤镜来创建噪点，然后将该噪点作为背景。在你的渐变下面分层，提高亮度和对比度，这样就可以了。例如，潜在的用例可以是光影或全息箔效果。这种技术的核心是由所有现代浏览器支持的。总而言之，一个聪明的视觉效果，为设计增加深度和质感。
+
+
+
+### 增加纹理和深度
+
+像油漆和纸张这样的 "模拟 "材料自然会给作品增加深度，但在数字工作时，我们经常为了精确和快速而牺牲它们提供的有机深度。让我们把一些纹理带回我们的工作中去吧！乔治-弗朗西斯分享了[三种方法](https://georgefrancis.dev/writing/texture-generative-snacks/)。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image5.png" style="max-width: 730px;" />
+
+乔治-弗朗西斯探讨了如何创造纹理和深度。
+
+乔治探讨的技术相当简单，但很有效。在画布的随机点上添加微小的随机形状，用线条填充固体形状，用算法均匀但随机地分布非重叠的圆。这是一个很有启发性的想法。
+
+
+
+### 使用CSS和SVG的剪裁效果
+
+在Ahmad Shadeed最近从事的一个前端项目中，其中一个组件包括一个切割效果，即从一个形状中切出一个区域。因为有多种方法可以在CSS或SVG中创建这样的效果，他决定探索每一种解决方案带来的利弊。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image6.png" style="max-width: 730px;" />
+
+如果你想创建一个切割效果，Ahmad Shadeed会帮助你找到适合你使用情况的最佳技术。
+
+在他的博文 "[思考裁剪效果](https://ishadeed.com/article/thinking-about-the-cut-out-effect/)"中，艾哈迈德看了裁剪效果的三个不同的用例：一个带有裁剪状态徽章的头像，表示用户当前在线；一个由重叠的圆形头像组成的 "已见头像"，表示在群聊中看到了一条信息；以及一个带有圆形标志后面裁剪区域的网站头像。艾哈迈德为每个用例提出了不同的解决方案--纯SVG、纯CSS和两者的混合--并解释了其中每一种的利弊，可以作为一个全面的概述。
+
+
+
+### SVG五星制打分效果
+
+你是否正在建立一个评级组件，并希望它支持小数值，如4.2或3.7星，但不使用图像？好消息是，你可以只用CSS和内联SVG来实现小数点的评级。Samuel Kraft解释了[它是如何工作的](https://samuelkraft.com/blog/fractional-svg-stars-css)。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image7.png" style="max-width: 730px;" />
+
+塞缪尔-卡夫（Samuel Kraft）提出了一个巧妙的技巧，即只用CSS和SVG来创建SVG五星制打分效果。
+
+这个组件基本上由两部分组成：一个基于最大评级的星星图标列表和一个 "覆盖 "div，它将负责改变下面星星的颜色。这就是使小数部分发挥作用的神奇之处。该技术在所有现代浏览器中都得到了支持；对于旧的浏览器，你可以退回到不透明性来代替。多聪明啊2333!
+
+
+
+### 生成式山脊分割线
+
+当Alistair Shepherd建立他的个人网站时，他希望能有与网站的山地主题相匹配的分区。但不是任何山形分隔线，而是每个分隔线都有独特的山脊。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image8.png" style="max-width: 730px;" />
+
+Alistair Shepherd创造了生成性SVG山脊分隔线。
+
+Alistair决定使用SVG和地形生成的组合（一种通常用于游戏开发的技术）来自动生成分隔线，而不是手动创建各种不同的分隔线。在一篇[博文](https://alistairshepherd.uk/writing/svg-generative-ridges/)中，他解释了它是如何工作的。
+
+如果你想获得更多的水平分割线的灵感，也一定要看看Sara Soueidan的博文 "[Not Your Typical Horizontal Rules](https://www.sarasoueidan.com/blog/horizontal-rules/)"，其中她展示了她是如何在一些CSS和SVG的帮助下将一条无聊的水平线变成一个可爱的 "线上鸟 "分割线。
+
+
+
+### 弹性、重复性SVG蒙版
+
+有时是一个小想法，一个项目中的小细节，你在修补时不能放过，直到你想出一个量身定做的解决方案来实现它。乍一看没什么大不了的，但需要你跳出框框来思考。在泰勒-高的案例中，这个小细节是一个灵活的页眉，底部有一个小方格，而不是一条直线。转折点是：为了使这个组件面向未来，Tyler想使用一个无缝的、水平重复的图案，他可以用CSS来着色。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image9.png" style="max-width: 730px;" />
+
+Tyler Gaw的横幅方块图是进行一些有趣的实验的好基础。
+
+为了完成这项工作，Tyler采用了弹性、重复性的SVG蒙版。SVG提供了形状，CSS处理了颜色，而`mask-image`则通过隐藏底层`div`中与形状不相交的东西来完成重任。这是一个聪明的方法，可以作为一些有趣实验的基础。
+
+
+
+### 滑动图像网格
+
+当你想到 "SVG动画 "时，你想到的是什么？插图式的动画？好吧，SVG的用处远不止于漂亮的图形。正如Cassie Evans所指出的，一旦你不再把SVG单纯地看作是一种插图和图标的格式，一个全新的UI造型世界就会打开。她最喜欢的SVG用例之一是：[响应式的动画图像网格](https://www.cassie.codes/posts/swipey-image-grids/)。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image10.png" style="max-width: 730px;" />
+
+Cassie Evans使用SVG的内部坐标系统来创建一个滑动的图像网格。
+
+Cassie没有在CSS Grid上建立她的图像网格，而是使用SVG的内部坐标系统（它是响应式的设计）来设计网格布局。然后，她将图片添加到网格中，并用`preserveAspectRatio`定位它们、`clipPath`把图片刷进去。最后的动画依靠GreenSock来确保转换在不同的浏览器上一致地工作。如果你想深入了解代码，一定要看看Cassie的[博文](https://www.cassie.codes/posts/swipey-image-grids/)，她在其中详细解释了每个步骤。
+
+
+
+### 动画式SVG借记卡插图
+
+如果你能把借记卡设计成动画，会怎么样？可能不是在实际的实体卡上，而是在一个登陆页面上，你想让人们对卡的设计或功能产生兴趣？这是一个不寻常的挑战，而汤姆-米勒决定接受这个挑战。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image11.png" style="max-width: 730px;" />
+
+Tom Miller创作的SVG动画插图将借记卡带入了生活。
+
+在一系列的[SVG借记卡动画](https://codepen.io/collection/MgYZwW)中，Tom使用GreenSock对SVG路径和形状进行了流畅的动画处理，因此每张卡实际上都是栩栩如生的，只需几行JavaScript就可以进行转换、旋转和缩放，非常漂亮。这对你的下一个登陆页面的设计是一个很好的启发。
+
+
+
+### 栅格图像 to SVG 转换器
+
+你需要将光栅图像快速转换为SVG吗？那么[SVGcode](https://svgco.de/)就是为你准备的。这个渐进式网络应用程序可以将JPG、PNG、GIF、WebP和AVIF等图像格式转换为SVG格式的矢量图。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image12.png" style="max-width: 730px;" />
+
+SVGcode将光栅图像转换成矢量图像。
+
+要转换图像，将你的光栅图像放入SVGcode应用程序，该应用程序将逐色追踪图像，直到出现输入的矢量版本。你可以在彩色SVG和单色SVG之间进行选择，还有一些自定义设置可以进一步改善输出，例如，通过抑制斑点和调整颜色。如果你安装了PWA，你甚至可以把它作为你机器上的一个默认文件处理程序。毫不夸张地说，这是一个真正的省时机器。
+
+
+
+### 从任何网站下载SVG
+
+[SVG Gobbler](https://www.svggobbler.com/)是一个方便的小工具，可以提高你的SVG工作流程。这个浏览器扩展可以找到你正在浏览的页面上的矢量内容，并让你选择下载、优化、复制、查看代码或将其导出为图片。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image13.png" style="max-width: 730px;" />
+
+SVG Gobbler使你可以很容易地从任何网站下载SVG。
+
+当你点击浏览器扩展时，它会向你显示该网站上检测到的所有SVG。你可以快速下载你喜欢的那些，或将它们复制到你的剪贴板上。当你查看代码时，你可以从SVGO中切换优化选项--例如，美化标记或清理属性或数字值。如果你需要一个SVG的PNG版本，你可以以任何你想要的尺寸导出它。这对任何开发人员的工具包来说都是一个绝妙的补充。
+
+
+
+### 缩放SVG变得简单
+
+缩放`svg`元素可能是一项艰巨的任务，因为它们的作用与普通的图像非常不同。Amelia Wattenberger想出了一个[巧妙的比较](https://wattenberger.com/guide/scaling-svg)，帮助我们理解SVG及其特殊功能。"SVG元素是一个进入另一个世界的望远镜"。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post31image14.png" style="max-width: 730px;" />
+
+把svg元素想象成进入另一个世界的望远镜，那么缩放就会变得容易得多。
+
+基于望远镜的想法，Amelia解释了如何使用`viewBox`属性来放大或缩小你的 "望远镜"，从而改变`<svg>`的大小。一个小窍门，却有奇效。
+
+
+
+### 收尾
+
+我们希望这些技术能够勾起你的好奇心，激励你自己尝试一些SVG的魔法。如果你遇到了一个有趣的SVG技术，让你感到敬畏，请不要犹豫，在下面的评论中分享它。我们很乐意听到它。祝你创作愉快！
+
+
+
+#### 更多关于SVG的信息
+
+- [SVG生成器](https://www.smashingmagazine.com/2021/03/svg-generators/)
+- [SVG和设计工具的实用指南](https://www.smashingmagazine.com/2019/05/svg-design-tools-practical-guide/)
+- [SVG圆环分解为路径]( https://www.smashingmagazine.com/2019/03/svg-circle-decomposition-paths/)
+- [无障碍SVG：屏幕阅读器用户的完美模式](https://www.smashingmagazine.com/2021/05/accessible-svg-patterns-comparison/)
+- 另外，请订阅我们的[新闻通讯](https://www.smashingmagazine.com/the-smashing-newsletter/)，不要错过下一次的新闻。
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文翻译的审阅指正**。
