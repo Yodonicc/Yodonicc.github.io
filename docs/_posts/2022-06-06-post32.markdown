@@ -516,7 +516,9 @@ scroll-padding-left: /* ... */;
 
 `tabular-nums`通过设置所有数字字符的等宽来解决上述问题。
 
-<video src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32video1.mov" style="max-width: 730px;" />
+<video controls="controls" style="max-width: 730px;" type="video/mov">
+   <source src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32video1.mov" controls="controls" style="max-width: 730px;" type="video/mov">
+</video>
 
 请注意，可用的功能取决于字体本身，有些功能可能不被支持。要获得完整的选项列表，请查阅[文档](https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-numeric)。还有一个`font-variant` CSS属性，它允许我们为所有字符激活更多的功能，而不仅仅是数字。
 
@@ -601,7 +603,9 @@ scroll-padding-left: /* ... */;
 
 回到旅游博客例子。注意到当你滚动或拖动滚动条时，它是如何跳动的。这是因为用`contain-intrinsic-size`设置的占位符（估计）尺寸和实际渲染尺寸之间的差异。如果我们省略这个属性，滚动条的跳动就会更加明显。
 
-<video src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32video2.mov" style="max-width: 730px;" />
+<video controls="controls" style="max-width: 730px;" type="video/mov">
+   <source src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32video2.mov" controls="controls" style="max-width: 730px;" type="video/mov">
+</video>
 
 有几种计算这个值的方法，包括PHP和JavaScript。使用PHP的服务器端计算尤其令人印象深刻，因为它可以在更大的一组不同的页面上自动估计数值，并使其对屏幕尺寸的子集更加准确。
 
