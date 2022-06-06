@@ -1,0 +1,622 @@
+---
+layout: post
+title: "你不知道的CSS"
+date: 2022-06-06 06:02:20 -0000
+categories: frontend css
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> [Yodonicc](https://github.com/Yodonicc)
+>
+> CSS是不断发展的，有些很酷很有用的属性要么完全没有被注意到，要么由于某种原因没有像其他属性那样被频繁提及。在这篇文章中，我将介绍这些CSS属性和选择器中的一小部分。
+
+本文中提到的绝大部分功能都是在过去一两年内官方新提供的。
+
+### `all`属性
+
+这是一个速记属性，通常用于通过有效地停止继承，从而[将所有属性重置为各自的初始值](https://developer.mozilla.org/en-US/docs/Web/CSS/all)，或者用于强制所有属性的继承。
+
+- `initial`
+  将所有属性设置为它们各自的初始值。
+- `inherit`
+  将所有属性设置为它们的继承值。
+- `unset`
+  将所有的值改为各自的默认值，即继承或初始值。
+- `revert`
+  产生的值取决于该属性所在的样式表原点。
+- `revert-layer`
+  结果值将匹配上一个级联层或下一个匹配规则。
+
+这个属性可以有效地用于重设样式，或者在重构CSS时，停止继承，防止不需要的样式泄露进来。
+
+``````css
+h2 {
+   color: var(——color-primary);
+   font-size: var(——font-size-large);
+   line-height: 1.5;
+   text-decoration: underline;
+   margin-bottom: 2rem;
+}
+
+.article h2 {
+  padding: 2em;
+  border-bottom: 2px solid currentColor;
+}
+
+.article__title {
+  /* 我们不需要之前选择器中的样式。我们只需要一个边距和一个字体大小。 */
+  all: unset;
+  margin-bottom: 2rem;
+  font-size: var(——font-size-medium);
+}
+``````
+
+通过`revert-layer`，我们可以跳到下一个级联层，继承另一个选择器的样式，但要防止级联层中最接近的选择器的样式泄露进来。
+
+用这个属性的时候，可以发现一个有趣的行为——下划线的颜色不会更新为当前分配的颜色，除非设置`text-decoration: underline;`被再次应用到包含`all`属性的`.title`选择器上。
+
+
+
+### `currentColor`
+
+通常被称为 "首个CSS变量"，currentColor是一个等于元素颜色属性的值。它可以用来给任何接受颜色值的CSS属性分配一个等于颜色属性的值。它强制一个CSS属性继承颜色属性的值。
+
+这个值对于避免在同一选择器中为多个接受颜色的CSS属性（如`border-color`、`background`、`box-shadow`等）分配相同的值非常有用。
+
+在我看来，currentColor最好的用例之一是给内联的SVG元素设计样式。每当我们从设计工具中导出一个图标时，它都带有特定的填充和设计中定义的其他颜色值。我们可以用currentColor手动替换所有这些颜色值，这样我们就可以轻松地定制SVG的颜色，而不需要进入SVG标记，覆盖单个路径或其他SVG元素的填充或其他基于颜色的属性，从而使我们的CSS选择器变得令人头大。
+
+``````css
+<!-- Before -->
+<path fill="#bbdb44" d="..."/>
+
+<!-- After -->
+<path fill="currentColor" d="..."/>
+``````
+
+``````css
+/* Before */
+.icon:hover path {
+  fill: #112244;
+}
+
+/* After */
+.icon {
+  color: #bbdb44;
+}
+
+.icon:hover {
+  color: #112244;
+}
+``````
+
+
+
+### 自定义属性的备用值
+
+自定义属性给CSS带来了巨大的改进，它允许开发者在他们的样式表中创建可重复使用的值，而不需要像SASS那样的CSS预处理程序。自定义属性在今天被广泛使用，特别是在主题设计和与JavaScript的交互中，效果非常好。
+
+然而，我觉得[备用值](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties#custom_property_fallback_values)在某种程度上被忽略了。如果你不熟悉备用值，它是可以分配给`var`函数的第二个值，如果第一个值没有被设置，它就会被应用。
+
+``````css
+color: var(--color-icon, #9eeb34);
+``````
+
+我们也可以设置另一个变量作为备用。
+
+``````css
+color: var(--color-icon-primary, var(--color-icon-default));
+``````
+
+你可能已经看到这个值如何被用来提供一个可靠的默认样式的备用值，同时允许自定义。
+
+这个备用值也允许用一种优雅的方式来覆盖主题颜色，而不增加特殊性。
+
+我们可以通过重写自定义变量值来轻松改变它们。
+
+``````css
+:root {
+  --theme-color-background: #f5f5f5;
+  --theme-color-text: #111111;
+}
+
+/* 全局覆盖在<body>或<html>元素的父类上 */
+.theme--dark {
+  --theme-color-background: #111111;
+  --theme-color-text: #f5f5f5;
+}
+``````
+
+但是，如果这种全局覆盖对所有的组件都不理想，而我们想对个别组件的属性进行微调，那该怎么办呢？在这种情况下，我们就必须重写样式。
+
+``````css
+.box {
+    color: var(--color-theme-default);
+}
+
+.theme--dark .box {
+  color: var(--color-component-override);
+}
+``````
+
+我们因此增加了特异性，这并不理想，在更复杂的情况下或在特异性未被管理的情况下，可能会导致问题。我们可以做的是使用备用值来应用主题化，而不增加组件内部的特殊性。这使得组件更具有主题化和可移植性，因为它不会为组件和其他类似的依赖关系引入任何父类名称。
+
+``````css
+:root {
+--theme-color-default: darkgoldenrod;
+--color-some-other-color: cyan;
+}
+
+.theme--dark {
+/* Dark theme */
+  --color-component-override: var(--color-some-other-color);
+}
+
+.box {
+  color: var(--color-component-override, var(--theme-color-default));
+}
+``````
+
+
+
+### 计数器
+
+CSS允许开发者[定义命名的计数器](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Counter_Styles/Using_CSS_counters)，可以使用CSS内容属性进行递增、递减和显示。
+
+- `counter-reset`
+  这个属性用于初始化单个或多个计数器。也可以指定一个默认的起始值。
+- `reversed`
+  在用counter-reset定义计数器时使用的函数，使计数器向下而不是向上计数。
+- `counter-increment`
+  指定一个要递增的计数器（或者如果计数器被定义为反转，或者如果向counter-increment传递一个负值，则递减）。默认的增量值是1，但也可以向这个属性传递一个自定义的值。
+- `counter`
+  用于访问计数器的值。通常在内容属性中使用。
+
+在下面的例子中，我们正在初始化两个计数器，一个是article，它记录了主要部分的数量，另一个是notes，它记录了页面上的笔记。一个章节可以有多个注释。
+
+``````css
+body {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 2em;
+  line-height: 1.5;
+  counter-reset: articles notes;
+}
+
+article {
+  margin-bottom: 2em;
+}
+
+article {
+   counter-increment: articles; 
+}
+
+article h2::before {    
+  content: counters(articles, ".") ". ";
+}
+
+aside {
+   counter-increment: notes; 
+  border-left: 5px solid darkgoldenrod;
+  padding: 1em;
+  margin: 1.5em 0;
+  background: #f5f5f5;
+}
+
+
+aside::before {
+    content: "Note " counters(notes, ".") ": ";
+  font-weight: bold;
+}
+``````
+
+如果我们想轻松地识别哪条注释属于某一页上的哪篇文章呢？我们需要在每个笔记上添加一个文章编号。例如，第三篇文章的第二个笔记——"Note 3.2"。
+
+我们可以很容易地调整Note计数器的初始化和显示方式、可以在一个内容属性中使用多个计数器值。
+
+``````css
+body {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 2em;
+  line-height: 1.5;
+}
+
+article {
+  margin-bottom: 2em;
+  counter-increment: articles; 
+  counter-reset: notes;
+}
+
+
+article h2::before {    
+  content: counters(articles, ".") ". ";
+}
+
+aside {
+   counter-increment: notes; 
+  border-left: 5px solid darkgoldenrod;
+  padding: 1em;
+  margin: 1.5em 0;
+  background: #f5f5f5;
+}
+
+
+aside::before {
+    content: "Note " counters(articles, ".")"."counters(notes, ".") ": ";
+  font-weight: bold;
+}
+``````
+
+使用CSS计数器，可以让我们轻松地添加、删除和重新排列这些元素，而不必担心手动更新计数器值，也不需要使用JavaScript。尤其是在创建有序列表时非常有用。
+
+``````css
+ol {
+  counter-reset: section;                /* 为每个 ol 元素创建新的计数器实例 */
+  list-style-type: none;
+}
+li:before {
+  counter-increment: section;            /* 只增加计数器的当前实例 */
+  content: counters(section, ".") " ";   /* 为所有计数器实例增加以“.”分隔的值 */
+}
+``````
+
+``````html
+<ol>
+  <li>item</li>          <!-- 1     -->
+  <li>item               <!-- 2     -->
+    <ol>
+      <li>item</li>      <!-- 2.1   -->
+      <li>item</li>      <!-- 2.2   -->
+      <li>item           <!-- 2.3   -->
+        <ol>
+          <li>item</li>  <!-- 2.3.1 -->
+          <li>item</li>  <!-- 2.3.2 -->
+        </ol>
+        <ol>
+          <li>item</li>  <!-- 2.3.1 -->
+          <li>item</li>  <!-- 2.3.2 -->
+          <li>item</li>  <!-- 2.3.3 -->
+        </ol>
+      </li>
+      <li>item</li>      <!-- 2.4   -->
+    </ol>
+  </li>
+  <li>item</li>          <!-- 3     -->
+  <li>item</li>          <!-- 4     -->
+</ol>
+<ol>
+  <li>item</li>          <!-- 1     -->
+  <li>item</li>          <!-- 2     -->
+</ol>
+``````
+
+
+
+### 交互式媒体查询
+
+在创建响应式网站时，我们经常根据屏幕尺寸对输入机制做出假设。我们假设1920px的屏幕尺寸属于台式电脑或笔记本电脑，用户使用鼠标和键盘与网站进行交互，但带有触摸屏的笔记本电脑或智能电视屏幕呢？
+
+这就是交互媒体功能的作用，它允许我们根据主要的输入机制——触摸、手写笔、鼠标指针等，对用户可以交互的组件（输入、画外菜单、下拉、模态等）的可用性进行微调。
+
+``````css
+@media (pointer: fine) {
+  /* 使用鼠标或手写笔 */
+}
+@media (pointer: coarse) {
+  /* 使用触摸屏 */
+}
+@media (hover: hover) {
+  /* 可以hover */
+}
+@media (hover: none) {
+  /* 不可以hover */
+}
+``````
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32image1.png" style="max-width: 730px;" />
+
+
+
+### `aspect-ratio`用于尺寸控制
+
+当 `aspect-ratio` 最初发布的时候，我以为我不会在图片和视频元素之外使用它，而且是在非常偏门的使用环境中。但我惊奇地发现，我使用它的方式与使用`currentColor`的方式相似——避免不必要地用相同的值设置多个属性。
+
+通过 `aspect-ratio` ，我们可以很容易地[控制一个元素的大小](https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio)。例如，等宽等高的按钮将有一个`1`的长宽比。这样，我们可以很容易地创建适应其内容和不同图标大小的按钮，同时保持所需的形状。
+
+``````css
+button {
+  border: 2px solid #333333;
+  background: transparent;
+  border-radius: 100%;
+  aspect-ratio: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+button:hover {
+  background-color: #333333;
+  color: #f5f5f5;
+}
+
+button + button {
+  margin-left: 1em;
+}
+
+body {
+  padding: 2em;
+}
+``````
+
+
+
+### 更好的渐变
+
+我们在网络上使用渐变已经有一段时间了，它们已经成为设计中的一个主打。然而，渐变的中间部分有时会显得灰暗，这取决于你所使用的颜色。
+
+在下面的例子中，我们在相同的两个值（绿色和红色）之间设置两个渐变。注意在第一个例子中，中间部分的颜色看起来很浑浊和冲淡，因为浏览器默认使用的是RGB颜色插值。我们目前无法改变这一点，但将来可能会使用新的CSS功能。不过，我们可以通过给渐变添加一些中点来解决这个问题。
+
+``````css
+.rgb {
+  background: linear-gradient(90deg, rgba(43,185,75,1) 0%, rgba(255,65,65,1) 100%);
+}
+``````
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32image2.png" style="max-width: 730px;" />
+
+第二个例子使用了带有多个中点的插值技术。请注意，现在中间部分是深黄色和橙色，看起来比第一个例子中的更有活力和美丽。
+
+``````css
+.hsl {
+  background-image: linear-gradient(
+  90deg,
+  hsl(134deg 62% 45%) 0%,
+  hsl(127deg 62% 46%) 5%,
+  hsl(121deg 62% 46%) 10%,
+  hsl(114deg 62% 47%) 14%,
+  hsl(108deg 62% 48%) 19%,
+  hsl(102deg 62% 49%) 24%,
+  hsl(95deg 61% 50%) 29%,
+  hsl(89deg 63% 51%) 33%,
+  hsl(83deg 65% 52%) 38%,
+  hsl(76deg 67% 52%) 43%,
+  hsl(70deg 69% 53%) 48%,
+  hsl(64deg 72% 54%) 52%,
+  hsl(57deg 74% 55%) 57%,
+  hsl(51deg 76% 56%) 62%,
+  hsl(45deg 79% 57%) 67%,
+  hsl(38deg 82% 58%) 71%,
+  hsl(32deg 84% 58%) 76%,
+  hsl(25deg 87% 59%) 81%,
+  hsl(19deg 90% 60%) 86%,
+  hsl(13deg 93% 61%) 90%,
+  hsl(6deg 97% 62%) 95%,
+  hsl(0deg 100% 63%) 100%
+);
+}
+``````
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32image3.png" style="max-width: 730px;" />
+
+
+
+### `:where` 和` :is `伪选择器
+
+这两个伪选择器在去年获得了更广泛的浏览器支持，虽然围绕它们有很多讨论，但我还没有在网络上看到那么多的使用。
+
+这两个选择器都是处理分组和特异性的，所以让我们从`:is`伪选择器开始。
+
+让我们看一下下面的例子。我们想为列表项和嵌套列表设置以下默认样式。我们需要涵盖有序和无序的列表及其组合。
+
+``````css
+ol li,
+ul li {
+  margin-bottom: 0.25em;
+}
+
+ol ol,
+ul ul,
+ol ul,
+ul ol {
+  margin: 0.25em 0 1em;
+}
+``````
+
+通过` :is `伪选择器，我们可以很容易地将这些选择器变成一个单一的表达式。
+
+``````css
+:is(ol,ul) li {
+  margin-bottom: 0.25em;
+}
+
+:is(ol,ul) :is(ol,ul) {
+  margin: 0.25em 0 1em;
+}
+``````
+
+`:where`的作用与`:is`相同，但它将表达式的特异性降低到零。为什么这很重要？让我们回到我们的例子，对标记做一些改变。添加一个`.list`选择器，这样我们就可以通过指定一个类来为list添加样式。为嵌套列表添加一个额外的类 `.list-highlight`，它添加了一个背景颜色，并调整了间距和边距，因此嵌套列表看起来更加突出。
+
+``````
+/* 嵌套列表的默认样式 */
+.list :is(ol,ul) {
+  margin: 0.25em 0 1em;
+}
+
+/* 嵌套列表的实用类 */
+.list-highlight  {
+  background: #eeeeee;
+  padding: 1em 1em 1em 2em;
+  margin: 0.5em 0;
+}
+``````
+
+然而，当我们对任何一个嵌套的列表应用`list-highlight`类时，边距看起来就不对了，因为那个样式并不适用。这到底是怎么回事？
+
+`:is`选择器的结果特异性与列表中最高的一个匹配。所以，来自`.list-highlight`利用类的边距样式被比下去了。
+
+我们想避免增加特异性和为我们的实用类增加依赖性，所以让我们把` :is `换成` :where`，看看会发生什么。
+
+``````css
+.list :where(ol,ul) {
+  /* ... */
+}
+``````
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32image4.png" style="max-width: 730px;" />
+我们的类在不需要更高的特异性或其他重写的情况下也能工作! `:where`将列表中的选择器的特异性设置为零，并允许我们覆盖默认样式。
+
+我们可以使用` :is` 和` :where `来将多个选择器分组到一个表达式中。通过 `:where`, 我们可以用复杂的选择器设置安全的默认样式，这些选择器可以用简单的类轻松地覆盖，而不需要无谓地增加特定性。
+
+
+
+### `scroll-padding`
+
+在实现固定页眉时，我最讨厌的一个问题是，页面上的滚动链接如何导致固定页眉覆盖部分内容。我们不得不使用JavaScript来解决这个问题，并实现自定义滚动逻辑，以考虑到固定页眉的偏移。而且，如果标题高度在断点上发生变化，事情只会变得更加复杂，所以我们也需要用JavaScript来解决这些情况。
+
+幸运的是，不必再依靠JavaScript来做这件事了。可以指定`scroll-padding-top`，并使用标准CSS媒体查询来改变其值。
+
+``````css
+html {
+  scroll-padding-top: 6rem;
+  scroll-behavior: smooth;
+}
+``````
+
+
+
+
+我们还可以设置其他方向，或者使用一个长方形的滚动填充。
+
+``````css
+scroll-padding: /* ... */;
+
+scroll-padding-top: /* ... */;
+scroll-padding-right: /* ... */;
+scroll-padding-bottom: /* ... */;
+scroll-padding-left: /* ... */;
+``````
+
+
+
+### 字体渲染选项
+
+由于个别字符的宽度不同，在动画过程中，文本有时会左右跳跃。
+
+请注意Fira Sans字体的数字值有不同的字符宽度。(第二行有一个额外的字符)
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32image5.png" style="max-width: 730px;" />
+
+本以为这个问题无法修复，但我惊讶地发现有大量的选项会影响字体的渲染，比如`font-variant-numeric: tabular-nums`。
+
+`tabular-nums`通过设置所有数字字符的等宽来解决上述问题。
+
+<video src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32video1.mov" style="max-width: 730px;" />
+
+请注意，可用的功能取决于字体本身，有些功能可能不被支持。要获得完整的选项列表，请查阅[文档](https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-numeric)。还有一个`font-variant` CSS属性，它允许我们为所有字符激活更多的功能，而不仅仅是数字。
+
+下面是字体Source Sans 3中的`font-variant-numeric`的另外几个例子。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32image6.png" style="max-width: 730px;" />
+
+
+
+### 用 `isolate` 创建堆叠上下文
+
+这个属性可能会让开发者感到困惑，那么就简单记住一句话，它允许我们将的z-index堆栈分隔开来。
+
+你可能遇到过这样的情况：例如，在你的页面上添加了一个可重复使用的工具提示组件，却发现这个工具提示元素的z-index低于页面上的其他相邻元素，导致工具提示显示在它的下面。我们通常会通过增加工具提示的z-index值来解决这个问题，但这有可能造成项目中其他地方的退步和类似问题。
+
+这正是下面这个例子中发生的情况。为了演示的目的，工具提示被锁定在悬停的状态。
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32image7.png" style="max-width: 730px;" />
+让我们看看这里发生了什么。一个开发者做了一个风格化的标题组件，按照设计中的定义，它后面有一个装饰性的元素。但他们对z-index值做得太过分了。
+
+- 标题文本有`z-index: 2`
+- 装饰性背景元素有一个`z-index: 1`
+
+这个组件按预期工作，并被合并到一个主代码库中。过了一段时间后，又有人做了一个工具提示组件，`z-index: 1`. 没有理由给`z-index`指定一个更高的值。因为工具提示需要刚好在文本的上方。一段时间后，一个边缘案例发生了，标题文本最终出现在工具提示之上。
+
+我们可以对标题组件和工具提示组件的`z-index`值进行调整，或者给它们各自的父元素分配一个`z-index`，并使用`position: relative`来创建一个新的堆叠环境，但我们是在依赖神奇的数字！我们可以从不同的角度来考虑这个问题。
+
+让我们换个角度思考这个问题——如果我们可以不依靠`z-index`的魔数来创建一个新的堆叠上下文呢？这正是`isolation: isolate`所做的事情。它创建了一个新的堆叠上下文或一个组。它告诉浏览器不要把这两个堆叠组混在一起，即使我们把标题的z-index值提高到可能的最高值也不行。因此，我们可以保持较低的z-index值，不用担心值是否应该是2、10、50、100、999999等。
+
+让我们在我们的标题组件的根部和工具提示组件的根部创建一个新的堆叠上下文，看看会发生什么。
+
+``````css
+.title {
+  isolation: isolate;
+  /* ... */
+}
+
+.tooltip-root {
+  isolation: isolate;
+  /* ... */
+}
+``````
+
+<img src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32image8.png" style="max-width: 730px;" />
+
+我们通过隔离两个相互冲突的组件的堆叠上下文来解决这个问题，而没有乱用`z-index`值的魔数。
+
+即使我们给标题文本分配了一个不必要的高值，比如99999，这个值也不会影响另一个孤立的组——tooltip最后仍然在标题之上，这使得我们的组件更加健壮和可重复使用。
+
+
+
+### 渲染性能的优化
+
+说到渲染性能，在常规项目工作中很少会遇到这些问题。然而，在有几千个元素的大型DOM树或其他类似的边缘情况下，我们会遇到一些与CSS和渲染有关的性能问题。幸运的是，我们有一个直接的方法来处理这些导致滞后、对用户输入无反应、低FPS等的性能问题。
+
+这就是`contain`属性的作用。它告诉浏览器在渲染周期中什么不会改变，所以浏览器可以安全地跳过它。这可能会对布局和风格产生影响，所以一定要测试这个属性是否会引入任何视觉错误。
+
+``````css
+.container {
+  /* 子元素不会显示在这个容器之外，所以只有这个容器的内容应该被渲染*/
+  contain: paint;
+  {...}
+}
+``````
+
+这个属性相当复杂，有些难以演示，因为它在那些非常特殊的边缘情况下最有用。例如，Google Search Console上有一个重大的滚动滞后。这是由于一个页面上有超过38000个元素造成的，并通过container属性解决了这个问题。
+
+正如你所看到的，`contain`依赖于开发者确切地知道哪些属性不会改变，并知道如何避免潜在的退步。所以，要安全地使用这个属性有点困难。
+
+然而，有一个选择，我们可以向浏览器发出信号，让它自动应用所需的包含值。我们可以使用`content-visibility`属性。有了这个属性，我们可以推迟屏幕外和折页下内容的渲染。有些人甚至将此称为 "懒渲染"。
+
+我们来看具体的例子，一个大量内容的旅游博客。例子中涉及了这个属性。他们将下面的类名应用于折叠下方的博客部分。
+
+``````
+.story {
+  content-visibility: auto; /* 效果类似 overflow: hidden; */
+  contain-intrinsic-size: 100px 1000px;
+}
+``````
+
+通过`contain-intrinsic-size`，我们可以估计将要被渲染的部分的大小。如果没有这个属性，内容的大小将是`0`，而页面尺寸将随着内容的加载而不断增加。
+
+回到旅游博客例子。注意到当你滚动或拖动滚动条时，它是如何跳动的。这是因为用`contain-intrinsic-size`设置的占位符（估计）尺寸和实际渲染尺寸之间的差异。如果我们省略这个属性，滚动条的跳动就会更加明显。
+
+<video src="https://image-1305011210.cos.ap-guangzhou.myqcloud.com/post32video2.mov" style="max-width: 730px;" />
+
+有几种计算这个值的方法，包括PHP和JavaScript。使用PHP的服务器端计算尤其令人印象深刻，因为它可以在更大的一组不同的页面上自动估计数值，并使其对屏幕尺寸的子集更加准确。
+
+请记住，这些属性应该在问题发生后用于修复，所以在你遇到渲染性能问题之前，省略它们是安全的。
+
+> 本文参考Lesser-Known And Underused CSS Features In 2022，有修改。
+
+
+
+### 总结
+
+CSS在不断发展，每年都有更多的功能被加入。跟上最新的功能和最佳实践是很重要的，但也要注意浏览器的支持情况，循序渐进。 
+
+我确信还有更多的CSS属性和选择器没有包括在这里。欢迎在评论区中留言^_^
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文的审阅指正**。
