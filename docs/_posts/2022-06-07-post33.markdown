@@ -1,0 +1,301 @@
+---
+layout: post
+title: "为什么我避免使用async/await？"
+date: 2022-06-07 06:02:20 -0000
+categories: frontend async
+---
+<!-- <image id="img" src="/public/post13image1.png" style="max-width: 730px;" >
+</image> -->
+
+<!-- <video controls="controls" style="max-width: 730px;" type="video/mp4">
+   <source id="mp4" src="/public/post8video1.mp4" controls="controls" style="max-width: 730px;" type="video/mp4">
+</video> -->
+> [Yodonicc](https://github.com/Yodonicc)
+>
+> 无论你对async/await的立场如何，我都想向你说明，根据我的经验，为什么async/await往往会使代码复杂度更高，而不是更低。
+
+JavaScript中的async/await功能的效用是基于这样的想法：异步代码很难，相比之下，同步代码更容易。这在客观上是正确的，但在大多数情况下，我不认为async/await真的能解决这个问题。
+
+### 谎言和async/await
+
+我用来确定是否要使用某个模式的指标之一是它所带来的代码综合质量。例如，一个模式可能是干净的、简洁的或广泛使用的，但如果它导致了容易出错的代码，它就是一个我可能会拒绝的模式。这些模式是双刃剑，很容易搬起石头砸自己的脚。
+
+首先，它是建立在一个谎言之上的。
+
+> Async/await让你的异步代码看起来像同步的一样。
+
+这是它的卖点。但对我来说，这就是问题所在。它从一开始就为你的代码所发生的事情设定了错误的心理模型。同步代码可能比异步代码更容易处理，但同步代码不是异步代码。它们有非常不同的属性。
+
+很多时候这不是问题，但当它是问题时，就很难识别，因为async/await正好隐藏了显示它的线索。以这段代码为例。
+
+
+
+同步代码
+
+``````javascript
+const processData = ({ userData, sessionPrefences }) => {
+  save('userData', userData);
+  save('session', sessionPrefences);
+  return { userData, sessionPrefences }
+}
+``````
+
+Async/Await
+
+``````javascript
+const processData = async ({ userData, sessionPrefences }) => {
+  await save('userData', userData);
+  await save('session', sessionPrefences);
+  return { userData, sessionPrefences }
+}
+``````
+
+Promise
+
+``````javascript
+const processData = ({ userData, sessionPrefences }) =>   save('userData', userData)
+  .then(() => save('session', sessionPrefences))
+  .then(() => ({ userData, sessionPrefences })
+``````
+
+
+
+这里有一些性能问题。我们已经把问题缩小到了processData函数上。在这三种情况中，你对优化途径的假设是什么？
+
+我看了第一种情况，发现我们在两个不同的地方保存了两块不同的数据，然后只是返回一个对象。唯一可以优化的地方是保存函数。没有任何其他选择。
+
+我看了第二个例子，也有同样的想法。唯一可以优化的地方是保存函数。
+
+也许只是因为我对Promise的太熟悉了，但我看了第三个例子，我很快看到了一个机会。我看到我们在连续调用save，尽管其中一个并不依赖于另一个。 我们可以将我们的两个save调用并行化。
+
+``````javascript
+const processData = ({ userData, sessionPrefences }) => Promise.all([
+  save('userData', userData),
+  save('session', sessionPrefences)
+])
+  .then(() => ({ userData, sessionPrefences })
+``````
+
+同样的机会也存在于async/await代码中，只是因为我们处于异步代码的思维模式中，所以它被隐藏在明处。在async/await版本中并不是没有提示。关键字async和await应该给我们同样的直觉，就像第三个版本中的then一样。但我敢打赌，对许多工程师来说，它并没有。
+
+为什么没有呢？
+
+这是因为我们被教导要以同步的思维方式来阅读async/await代码。在第一个同步代码例子中，我们无法将保存调用并行化，同样的逻辑（但现在是不正确的），我们来到第二个例子。Async/await将我们的思维置于同步的思维模式中，而这是错误的思维模式。
+
+此外，如果我们要在async/await的例子中利用并行化的优势，无论如何我们必须使用promise。
+
+``````javascript
+const processData = async ({ userData, sessionPrefences }) => {
+  await Promise.all([
+    save('userData', userData), 
+    save('session',sessionPrefences)
+  ])
+  return { userData, sessionPrefences }
+}
+``````
+
+在我看来，如果一个特定的模式只在一些常见的情况下工作，那么它一定有一些非常大的优势。如果我不得不在一些非常常见的情况下 "退回"到promise模式，那么我就看不到async/await比promise有什么优势。对我来说，在多种范式之间切换的认知负担并不值得。promise在任何情况下都能完成工作，而且每次都和async/await一样好，甚至更好。
+
+
+
+### 错误处理
+
+处理错误对于异步代码来说是至关重要的。有几个关键的地方，我们必须担心JavaScript中同步代码的错误处理。这主要发生在我们把一些东西交给本地API，如`JSON.parse`，或浏览器功能，如`window.localstorage`。
+
+让我们来看看我们之前的save函数的例子，并应用一些错误处理。让我们假设在我们的同步例子中，save执行了一个可能会抛出的操作。这是非常合理的，因为如果保存到sessionstorage，它可能在序列化或试图访问sessionstorage的过程中抛出。为了处理同步代码中可能出现的错误，我们通常使用try/catch。
+
+##### 同步代码
+
+``````javascript
+const processData = ({ userData, sessionPrefences }) => {
+  try {
+    save('userData', userData);
+    save('session', sessionPrefences);
+    return { userData, sessionPrefences }
+  } catch (err) {
+    handleErrorSomehow(err)
+  }
+}
+``````
+
+根据不同的策略，我们可能重新抛出错误，或者在catch块中返回一些默认值。无论哪种方式，我们都必须在try块中封装任何可能抛出错误的逻辑。
+
+
+
+##### async/await
+
+由于async/await让我们 "像看待同步一样看待async代码"，我们也使用try/catch块。捕获块甚至会将我们的reject判定为一个错误。
+
+``````javascript
+const processData = async ({ userData, sessionPrefences }) => {
+  try {
+    await save('userData', userData);
+    await save('session', sessionPrefences);
+    return { userData, sessionPrefences }
+  } catch (err) {
+    handleErrorSomehow(err)
+  }
+}
+``````
+
+看看这个，async/await实现了它的承诺。它看起来与同步版本几乎完全一样。
+
+现在，有一些编程流派非常倚重try/catches。我觉得它们是一种精神上的负担。每当有try/catch时，我们现在不仅要担心函数返回什么，还要担心它抛出什么。我们不仅有分支逻辑，这增加了复杂性，而且还必须担心同时处理两种不同的范式。一个函数可以返回一个值，也可以抛出。因此，每个函数都要处理这两方面的问题。这很累人。
+
+
+
+##### try/catch的尴尬
+
+关于try/catch的最后一点。在JavaScript中，你一般不会在很多地方看到拥抱try/catch。与其他语言不同的是，在其他语言中，你会经常看到它，比如Java。JavaScript中的try块会立即将这部分代码排除在许多引擎优化之外，因为代码不能再被分解成确定的片段。换句话说，在JavaScript中，同样的代码在被try块包裹的情况下会比不被包裹的情况下运行得更慢，即使它没有抛出的可能性。
+
+
+
+##### Promise
+
+让我们看看Promise在做什么。
+
+``````javascript
+const processData = ({ userData, sessionPrefences }) =>   save('userData', userData)
+  .then(() => save('session', sessionPrefences))
+  .then(() => ({ userData, sessionPrefences })
+  .catch(handleErrorSomehow)
+``````
+
+你看到了吗？
+
+``````javascript
+.catch(handleErrorSomehow)
+``````
+
+是的。这就是它的全部内容。这和其他的方法做的事情完全一样。我发现这比try/catch块更容易阅读。你觉得呢？如果同步代码也这么简单就好了......等一下!
+
+``````javascript
+const processData = ({ userData, sessionPrefences }) => Promise.resolve(save('userData', userData))
+  .then(() => save('session', sessionPrefences))
+  .then(() => ({ userData, sessionPrefences })
+  .catch(handleErrorSomehow)
+``````
+
+🤯
+
+好吧，这有缺点，但也超级有趣，你不觉得吗？这只是一个小小的提示，让你思考如果我们想的话，函数式风格的JavaScript会是什么样子。但不管怎样，接受还是不接受。我的目的是说服你使用Promises而不是async/await。而不是承诺Promises全面优于async/await。那就太疯狂了。😏
+
+
+
+### 更关键的一点
+
+我想提出的最后一点是。我有时会遇到一些论点，声称async/await可以防止callbacks和promises中可能出现的 "回调地狱 "现象。
+
+说实话，我第一次听到这种论调时，我以为这个人只是混淆了，是想说 "callbacks"。毕竟，promises设计之初的目的之一就是消除 "回调地狱 "的问题，所以我很困惑，人们说promises会导致回调地狱（我的意思是，它毕竟被称为回调(callbacks)地狱，而不是promises地狱）。
+
+但后来我真的看到了一些promise的代码，它们看起来惊人地像回调地狱。我很困惑，为什么有人会这样使用promise。最终，我得出结论，有些人对promise的工作原理有一个非常基本的误解。
+
+在我讨论这个问题之前，首先让我承认，事实上不可能用async/await创造出金字塔结构的回调地狱，所以它有这个优势。但是我从来没有写过一个超过两级的promise流，没有必要。当然有可能，但从来没有必要。
+
+我发现，每当我在promise链中看到 "回调地狱 "时，都是因为人们没有意识到promise的作用就像一个无限长的流程图。换句话说，一个像这样的流程：
+
+``````javascript
+const id = 5
+const lotsOAsync = () => fetch('/big-o-list')
+  .then((result) => {
+    if (result.ok) {
+      return result.json().then((list) => {
+        const {url: itemURL } = data.items.find((item) => item.id === id)
+        return fetch(itemURL).then((result) => {
+          if (result.ok) {
+            return result.json().then((data) => data.name)
+          } else {
+            throw new Error(`Couldn't fetch ${itemURL}`)
+          }
+        })
+      })
+    } else {
+      throw new Error(`Couldn't fetch big-o-list`)
+    }
+  })
+``````
+
+
+
+真的应该这样写：
+
+``````javascript
+const id = 5
+const lotsOAsync = () => fetch('/big-o-list')
+  .then((result) => result.ok ? result.json() : Promise.reject(`Couldn't fetch big-o-list`))
+  .then(({ items }) => items.find((item) => item.id === id))
+  .then(({url}) => fetch(url))
+  .then((result) => result.ok ? result.json() : Promise.reject(`Couldn't fetch ${result.request.url}`))
+  .then((data) => data.name)
+``````
+
+
+如果这有点让人困惑，让我给你一个更简单，但更矫情的例子。
+
+##### 回调地狱 🔥
+
+``````javascript
+Promise.resolve(
+  Promise.resolve(
+    Promise.resolve(
+      Promise.resolve(
+        Promise.resolve(
+          Promise.resolve(5)
+        )
+      )
+    )
+  )
+).then((val) => console.log(val))
+``````
+
+
+
+##### promise天堂 👼
+
+``````javascript
+Promise.resolve()
+  .then(() => Promise.resolve())
+  .then(() => Promise.resolve())
+  .then(() => Promise.resolve())
+  .then(() => Promise.resolve())
+  .then(() => Promise.resolve(5))
+  .then((val) => console.log(val))
+``````
+
+
+
+这两个例子在创建promise的数量和顺序方面都是一样的（以及它们实际上脱离现实，但这是出于学术目的，所以我们允许它）。然而，后一个比前一个更有可读性。
+
+如果你习惯于写与第一个例子更像的promise流，让我给你提供一个好的小技巧来摆脱这种习惯。
+
+**每次你想在你的承诺流中写一个then或catch，首先确保你返回promise，然后转到最外层的promise（如果你一直遵循这个规则，那应该只有一层）并在那里添加你的then或catch。只要你在返回，你的值就会冒泡到最外层的promise。这就是你应该做的 "then"。**
+
+请记住，你不一定要返回一个Promise来使用then。一旦你在一个promise的上下文中，任何返回的值都会通过它冒泡。Promise、number、字符串、函数、对象，等等。
+
+``````javascript
+Promise.resolve(5)
+  .then((val) => val + 3)
+  .then((num) => String(num))
+  .then((str) => `I have ${str} llamas`)
+  .then((str) => /ll/.test(str))
+``````
+
+
+
+这都是完全合法的（尽管有点不合理，但编造的例子是为了说清楚🤷♂)
+
+> 本文参考Why I avoid async/await，有修改。
+
+
+
+### 总结
+
+在我看来，promises
+
+- 提供更好的提示，表明我们处于异步的心理模型中
+- 在简单的情况下，对代码的表达至少与async/await一样干净。
+- 为包括错误处理和并行化在内的更复杂的工作流提供了一个更干净的选择。
+
+
+
+注：**特别感谢技术指导dazhao(赵达)对本文的审阅指正**。
